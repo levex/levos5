@@ -1,0 +1,1 @@
+OBJS += display/textmode.o
