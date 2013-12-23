@@ -29,4 +29,6 @@ extern int tty_init();
 extern void tty_write(int id, char *buf, uint32_t len);
 extern void tty_flush(int id);
 
+extern void switch_to_tty(int id);
+
 #endif

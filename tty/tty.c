@@ -18,6 +18,7 @@ int tty_generic_write(struct tty *m, uint8_t *buf, uint32_t len)
 
 int tty_generic_flush(struct tty *m)
 {
+	if(! (m->flags & TTY_FLAG_ACTIVE)) return 1;
 	if(m->disp->update)
 		return m->disp->update(m->disp);
 	return 1;
@@ -34,7 +35,7 @@ int tty_generic_setactive(struct tty *m)
 void switch_to_tty(int id)
 {
 	/* set old tty unactive */
-	tty_s[ctty].flags |= ~TTY_FLAG_ACTIVE;
+	tty_s[ctty].flags &= ~TTY_FLAG_ACTIVE;
 	/* set current tty to the id */
 	ctty = id;
 	/* set current tty as active */
@@ -68,9 +69,6 @@ int tty_init(int ttys)
 		tty_s[i].bufpos = 0;
 		tty_s[i].disp = textmode_display_new(&tty_s[i]);
 	}
-	/* set a tty as active. tty0 will do */
-	tty_s[0].flags = TTY_FLAG_ACTIVE | TTY_FLAG_ONLINE;
-	ctty = 0;
 	return 0;
 }
 
