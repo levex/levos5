@@ -3,5 +3,6 @@
 
 int input_register(struct input *m)
 {
+	m = m;
 	return 0;
 }

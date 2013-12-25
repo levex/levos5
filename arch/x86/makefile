@@ -16,7 +16,7 @@ OBJS += arch/x86/start.o
 
 STARTFILE := arch/x86/start.o
 arch/x86/start.o: arch/x86/start.s
+	@echo "AS          $@"
 	@$(AS) -c $< -o $@
-	@echo AS $@
 
 

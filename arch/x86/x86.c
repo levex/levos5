@@ -5,6 +5,7 @@
 #include <textmode.h>
 #include <display.h>
 #include <input.h>
+#include <keyboard.h>
 
 int arch_early_init()
 {
@@ -32,7 +33,7 @@ int arch_early_init()
 
 int arch_late_init()
 {
-	tty_write(0, "x86 architecture init succeeded\n", 32);
+	tty_write(0, (uint8_t *)"x86 architecture init succeeded\n", 32);
 	tty_flush(0);
 	
 	/* init tasking */

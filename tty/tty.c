@@ -90,9 +90,9 @@ int tty_init(int ttys)
 }
 
 
-void tty_write(int id, char *buf, uint32_t len)
+void tty_write(int id, uint8_t *buf, uint32_t len)
 {
-	tty_s[id].write(&tty_s[id], (uint8_t *)buf, len);
+	tty_s[id].write(&tty_s[id], buf, len);
 }
 
 void tty_flush(int id)

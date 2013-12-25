@@ -1,7 +1,13 @@
 #include <mm.h>
 #include <stddef.h>
+#include <hal.h>
 
-#define NULL 0
+#pragma GCC diagnostic ignored "-Waddress"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+
+#ifndef NULL
+	#define NULL 0
+#endif
 
 /**  Durand's Ridiculously Amazing Super Duper Memory functions.  */
 
@@ -38,6 +44,7 @@ int liballoc_lock()
 int liballoc_unlock()
 {
 	__locked = 0;
+	return 0;
 }
 
 void *liballoc_alloc(int pages)

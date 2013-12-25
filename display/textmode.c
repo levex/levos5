@@ -2,6 +2,8 @@
 #include <textmode.h>
 #include <mm.h>
 
+#pragma GCC diagnostic ignored "-Wsign-compare"
+
 int textmode_update(struct display *m)
 {
 	/* TODO: handle newlines! */

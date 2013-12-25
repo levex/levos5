@@ -10,8 +10,8 @@ OBJS += arch/arm/arm.o
 include arch/arm/drivers/makefile
 
 STARTFILE := arch/arm/start.o
-arch/x86/start.o: arch/arm/start.s
+arch/arm/start.o: arch/arm/start.s
+	@echo "AS          $@"
 	@$(AS) -c $< -o $@
-	@echo AS $@
 
 

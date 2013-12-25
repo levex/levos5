@@ -3,6 +3,17 @@ levos5
 
 LevOS5 - A UNIX-like kernel aiming for POSIX compliance.
 
+Compilation
+===========
+
+You need:
+* i586-elf GCC and binutils for x86 build.
+* arm-elf GCC and binutils for ARM build.
+
+Run 'make' to build the kernel for the x86 (default) architecture.
+
+You can specify the architecture with 'make ARCH={arm,x86}'
+
 Features
 ========
 
@@ -11,6 +22,7 @@ Features
 * PS/2 keyboard driver
 * Interrupt processing
 * x86 support
+* ARM support
 * Liballoc
 * Display abstraction
 
@@ -46,6 +58,13 @@ x86 support
 
 This is the original architecture of LevOS5. Currently supports the GDT, IDT, and paging.
 mm_{alloc, free}_pages are implemented with paging and bitmap handling.
+
+ARM support
+===========
+
+This is a simple test that shows how easily LevOS5 can be ported. :-)
+
+Check out arch/arm/* for details.
 
 Liballoc
 ========

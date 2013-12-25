@@ -46,4 +46,5 @@ void pic_send_eoi(uint8_t irq)
 int send_eoi(int no)
 {
 	pic_send_eoi(no);
+	return 0;
 }

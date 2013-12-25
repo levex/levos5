@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <display.h>
+#include <mm.h>
 
 static struct pl110_mmio *pm = 0;
 static uint16_t volatile *fb = 0;
@@ -316,8 +317,9 @@ void pl110_clear()
 		fb[x] = 0x1f << (5 + 6) | 0xf << 5;*/
 }
 
-void pl110_setactive(struct display *m)
+int pl110_setactive(struct display *m)
 {
+	m=m;
 		
 	pm = (struct pl110_mmio *)PL110_IOBASE;
 	pm->tim0 = 0x3f1f3f9c;
@@ -331,15 +333,18 @@ void pl110_setactive(struct display *m)
 	
 	_x = 0;
 	_y = 0;
+	
+	return 0;
 }
 
-void pl110_update(struct display *m)
+int pl110_update(struct display *m)
 {
-	for(int i = 0; i < m->mtty->bufpos; i++)
+	for(unsigned int i = 0; i < m->mtty->bufpos; i++)
 	{
 		uint8_t c = m->mtty->buffer[i];
 		pl110_putc(c);
 	}
+	return 0;
 }
 
 struct display pl110_display = {
@@ -350,8 +355,8 @@ struct display pl110_display = {
 
 struct display *pl110_create_new(struct tty *mtty)
 {
-	struct display *ret = malloc(sizeof(struct display));
-	memcpy(ret, &pl110_display, sizeof(struct display));
+	struct display *ret = (struct display *)malloc(sizeof(struct display));
+	memcpy((uint8_t *)ret, (uint8_t *)&pl110_display, sizeof(struct display));
 	ret->mtty = mtty;
 	return ret;
 }

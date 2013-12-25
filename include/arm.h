@@ -1,6 +1,8 @@
 #ifndef __ARM_H_
 #define __ARM_H_
 
+#include <tty.h>
+
 #define INT_START ;
 #define INT_END ;
         

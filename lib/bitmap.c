@@ -1,6 +1,8 @@
 #include <bitmap.h>
 #include <stdint.h>
 
+#pragma GCC diagnostic ignored "-Wsign-compare"
+
 void set_bitmap(uint8_t *b, int i) {
     b[i / 8] |= 1 << (i & 7);
 }

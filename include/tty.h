@@ -29,7 +29,7 @@ struct tty {
 
 extern int tty_init();
 
-extern void tty_write(int id, char *buf, uint32_t len);
+extern void tty_write(int id, uint8_t *buf, uint32_t len);
 extern void tty_flush(int id);
 
 extern int tty_read(int id, uint8_t *buf, uint32_t len);
