@@ -10,7 +10,7 @@ Features
 * TTY layer
 * PS/2 keyboard driver
 * Interrupt processing
-* Paging
+* x86 support
 * Liballoc
 * Display abstraction
 
@@ -41,10 +41,11 @@ Each $ARCH implements its own interrupt_ctl(int enable) method which allows for 
 
 Each $ARCH must also implement its own register_interrupt(int intno, void(*f)()) which will register an interrupt handler. On X86, this is done by adding the field to the IDT.
 
-Paging
-======
+x86 support
+===========
 
-This is X86 specific. This should be moved under the specific $ARCH directory in a future version.
+This is the original architecture of LevOS5. Currently supports the GDT, IDT, and paging.
+mm_{alloc, free}_pages are implemented with paging and bitmap handling.
 
 Liballoc
 ========
