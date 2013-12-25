@@ -1,7 +1,7 @@
 levos5
 ======
 
-LevOS5 - A UNIX-like kernel aiming for POSIX compilance.
+LevOS5 - A UNIX-like kernel aiming for POSIX compliance.
 
 Features
 ========
@@ -37,7 +37,7 @@ A very simple buffered keyboard driver. Handles the IRQ and pushes the ASCII cod
 Interrupt processing
 ====================
 
-Each $ARCH implements its own interrupt_ctl(int enable) method which allows for interrupt(or the alike) to switched on and off. For example, on x86 this is done by the sti and cli instructions.
+Each $ARCH implements its own interrupt_ctl(int enable) method which allows for interrupt(or the alike) to be switched on and off. For example, on x86 this is done by the sti and cli instructions.
 
 Each $ARCH must also implement its own register_interrupt(int intno, void(*f)()) which will register an interrupt handler. On X86, this is done by adding the field to the IDT.
 
