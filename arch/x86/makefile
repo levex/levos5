@@ -1,5 +1,7 @@
 CC=i586-elf-gcc
 AS=i586-elf-as
+LD=i586-elf-gcc
+QEMU=qemu-system-i386
 CFLAGS=-D_ARCH__$(ARCH)__ -Iinclude -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 
 OBJS += arch/x86/hal.o

@@ -16,11 +16,11 @@ include display/makefile
 include drivers/makefile
 
 kernel.img: $(OBJS)
-	@i586-elf-gcc -T linker.ld -o kernel.img -ffreestanding -O2 -nostdlib $(OBJS)  -lgcc
+	@$(LD) -T linker.ld -o kernel.img -ffreestanding -O2 -nostdlib $(OBJS)  -lgcc
 	@echo LD $@
 
 start: kernel.img
-	qemu-system-i386 -kernel kernel.img
+	$(QEMU) -kernel kernel.img
 
 %.o: %.c
 	@$(CC) -c $(CFLAGS) $< -o $@

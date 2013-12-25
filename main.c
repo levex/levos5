@@ -12,7 +12,7 @@ void main()
 	if (rc)
 		return;
 		
-	malloc(0);
+	malloc(1);
 		
 	rc = tty_init(10);
 	if (rc)

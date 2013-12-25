@@ -9,6 +9,10 @@
 	#include <x86.h>
 #endif
 
+#ifdef _ARCH__arm__
+	#include <arm.h>
+#endif
+
 /* arch-specific functions */
 
 /* early init for arch-spec tables and such */
@@ -34,6 +38,14 @@ extern void *mm_alloc_pages(int pages);
 
 /* free those */
 extern int mm_free_pages(void *ptr, int pages);
+
+/* inport, outport */
+uint8_t inportb(uint16_t portid);
+uint16_t inportw(uint16_t portid);
+uint32_t inportl(uint16_t portid);
+void outportb(uint16_t portid, uint8_t value);
+void outportw(uint16_t portid, uint16_t value);
+void outportl(uint16_t portid, uint32_t value);
 
 /* end of arch-spec functions */
 
