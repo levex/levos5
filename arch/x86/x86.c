@@ -9,7 +9,7 @@
 int arch_early_init()
 {
 	int rc;
-		/* init GDT */
+	/* init GDT */
 	rc = gdt_init();
 	if (rc)
 		return rc;
@@ -23,6 +23,10 @@ int arch_early_init()
 		return rc;
 	/* init PIT */
 	rc = pit_init();
+	
+	/* init paging */
+	rc = paging_init();
+	
 	return rc;
 }
 

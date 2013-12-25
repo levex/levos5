@@ -29,6 +29,12 @@ extern struct display *arch_new_default_display(struct tty *mtty);
 /* return a pointer to a new default input for a tty */
 extern struct input *arch_new_default_input(struct tty *mtty);
 
+/* return a pointer to #pages allocation */
+extern void *mm_alloc_pages(int pages);
+
+/* free those */
+extern int mm_free_pages(void *ptr, int pages);
+
 /* end of arch-spec functions */
 
 extern uint8_t inportb(uint16_t portid);

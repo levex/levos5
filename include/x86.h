@@ -18,6 +18,9 @@ extern int idt_init();
 /* programmable interval timer */
 extern int pit_init();
 
+/* paging methods */
+extern int paging_init();
+
 #define INT_START asm volatile("pusha");
 #define INT_END asm volatile("popa"); \
         asm volatile("iret");

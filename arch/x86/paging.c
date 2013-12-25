@@ -13,6 +13,7 @@ static uint32_t *page_directory = 0;
 static uint32_t *__kernel_heap_pt = 0;
 
 #define KHEAP_VIRTUAL_START 0xC0000000
+#define KERNEL_PAGE 3
 
 uint32_t make_page_pte(uint32_t addr_aligned, int flags)
 {

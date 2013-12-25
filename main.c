@@ -11,10 +11,8 @@ void main()
 	rc = arch_early_init();
 	if (rc)
 		return;
-	
-	rc = paging_init();
-	if (rc)
-		return;
+		
+	malloc(0);
 		
 	rc = tty_init(10);
 	if (rc)

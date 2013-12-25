@@ -4,24 +4,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define KERNEL_PAGE 3
-
-struct page_dir_entry {
-	int present:1;
-	int readwrite:1;
-	int kernel:1;
-	int wt:1;
-	int cache:1;
-	int accessed:1;
-	int __zero__:1;
-	int size:1;
-	int __zero_2_:1;
-	int avail:3;
-	int addr:21;
-};
-
-extern int paging_init();
-
 struct	boundary_tag
 {
 	unsigned int magic;			//< It's a kind of ...
