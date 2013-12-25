@@ -1,4 +1,4 @@
-OBJS := main.o start.o
+OBJS := main.o $(STARTFILE)
 
 ARCH=x86
 
@@ -8,9 +8,6 @@ include arch/$(ARCH)/makefile
 
 all: start
 
-start.o: start.s
-	@$(AS) -c $< -o $@
-	@echo AS $@
 
 include mm/makefile
 include tty/makefile
