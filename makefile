@@ -1,8 +1,10 @@
 OBJS := main.o start.o
 
+ARCH=x86
+
 CC=i586-elf-gcc
 AS=i586-elf-as
-CFLAGS=-Iinclude -std=gnu99 -ffreestanding -O2 -Wall -Wextra
+CFLAGS=-D_ARCH__$(ARCH)__ -Iinclude -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 
 .PHONY: start all
 
@@ -16,6 +18,8 @@ include mm/makefile
 include tty/makefile
 include lib/makefile
 include display/makefile
+include drivers/makefile
+include arch/$(ARCH)/makefile
 
 kernel.img: $(OBJS)
 	@i586-elf-gcc -T linker.ld -o kernel.img -ffreestanding -O2 -nostdlib $(OBJS)  -lgcc

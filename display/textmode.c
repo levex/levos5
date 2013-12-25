@@ -4,9 +4,11 @@
 
 int textmode_update(struct display *m)
 {
+	/* TODO: handle newlines! */
 	for(int i = 0; i < m->mtty->bufpos; i++)
 	{
-		*(uint16_t *)(0xB8000 + i*2) = 0x1f << 8 | m->mtty->buffer[i];
+		uint32_t index = 0xB8000 + i*2;
+		*(uint16_t *)(index) = 0x1f << 8 | m->mtty->buffer[i];
 	}
 	return 0;
 }

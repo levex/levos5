@@ -2,6 +2,7 @@
 #include <mm.h>
 #include <tty.h>
 #include <textmode.h>
+#include <hal.h>
 
 struct tty *tty_s;
 
@@ -44,10 +45,25 @@ void switch_to_tty(int id)
 	if(!tty_s[ctty].disp)
 	{
 		/* if no, create one */
-		tty_s[ctty].disp = textmode_display_new(&tty_s[ctty]);
+		tty_s[ctty].disp = arch_new_default_display(&tty_s[ctty]);
 	}
 	/* call the tty's event handler of setactive */
 	tty_s[ctty].setactive(&tty_s[ctty]);
+}
+
+int tty_read(int id, uint8_t *buf, uint32_t len)
+{
+	struct tty *m = &tty_s[id];
+	if(m->inp)
+		return m->inp->read(m->inp, buf, len);
+	
+	m->inp = arch_new_default_input(m);
+	return 0;
+}
+
+int tty_current()
+{
+	return ctty;
 }
 
 int tty_init(int ttys)
@@ -67,7 +83,8 @@ int tty_init(int ttys)
 			return 1;
 		tty_s[i].buflen = TTY_BUFFER_SIZE;
 		tty_s[i].bufpos = 0;
-		tty_s[i].disp = textmode_display_new(&tty_s[i]);
+		tty_s[i].disp = arch_new_default_display(&tty_s[i]);
+		tty_s[i].inp = arch_new_default_input(&tty_s[i]);
 	}
 	return 0;
 }

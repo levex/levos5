@@ -21,7 +21,7 @@ uint32_t make_page_pte(uint32_t addr_aligned, int flags)
 
 int paging_init()
 {
-	uint32_t page_aligned_end = ((uint32_t)kernel_end & 0xfffff000) + 0x1000;
+	uint32_t page_aligned_end = ((uint32_t)&kernel_end & 0xfffff000) + 0x1000;
 	/* paging data will be immediately after the kernel,
 	 * we null out 4kb of space and call malloc_init()
 	 * to initialize the allocator
@@ -41,15 +41,19 @@ int paging_init()
 	/* also reserve space to map the first 4 megabytes */
 	page_aligned_end += 0x1000;
 	uint32_t *__first_pt = (uint32_t *) page_aligned_end;
+	page_aligned_end += 0x1000;
+	uint32_t *__second_pt = (uint32_t *) page_aligned_end;
 	/* now, lets map them */
 	for(int i = 0; i < 1024; i++)
 	{
 		__kernel_heap_pt[i] = make_page_pte(page_aligned_end + i * 0x1000, KERNEL_PAGE);
 		__first_pt[i] =       make_page_pte(0 + i * 0x1000, KERNEL_PAGE);
+		__second_pt[i] = 	  make_page_pte(0x400000 + i * 0x1000, KERNEL_PAGE);
 	}
 	/* add them to the page directory */
 	page_directory[768] = (uint32_t)__kernel_heap_pt | 3;
 	page_directory[0] = (uint32_t)__first_pt | 3;
+	page_directory[1] = (uint32_t) __second_pt | 3;
 	for(int i = 0; i < 128; i++)
 		kheap_bitmap[i] = 0;
 	/* enable paging */

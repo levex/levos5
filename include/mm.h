@@ -50,7 +50,7 @@ void     *realloc(void *, size_t);
 void     *calloc(size_t, size_t);
 void      free(void *);	
 
-
+void* memset (void * ptr, int value, int num );
 void memcpy(uint8_t *dest, uint8_t *src, uint32_t len);
 
 #endif

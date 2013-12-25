@@ -20,3 +20,11 @@ void memcpy(uint8_t *dest, uint8_t *src, uint32_t count)
 		src8 += 2;
 	}
 }
+
+void* memset (void * ptr, int value, int num )
+{
+        unsigned char* p=ptr;
+        while(num--)
+                *p++ = (unsigned char)value;
+        return ptr;
+}
