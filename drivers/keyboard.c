@@ -74,7 +74,7 @@ enum KEYCODE {
 
         SLASH_RELEASED = 0xB5,
 
-        BACKSPACE_PRESSED = 0xE,
+        BACKSPACE_PRESSED = 0x0E,
         BACKSPACE_RELEASED = 0x8E,
         SPACE_PRESSED = 0x39,
         SPACE_RELEASED = 0xB9,
@@ -108,6 +108,7 @@ uint8_t keyboard_to_ascii(uint8_t key)
         if(key == 0x39) return ' ';
         if(key == 0xE) return '\r';
         if(key == POINT_RELEASED) return '.';
+	if(key == BACKSPACE_PRESSED) return ' ';
         if(key == SLASH_RELEASED) return '/';
         if(key == ZERO_PRESSED) return '0';
         if(key >= ONE_PRESSED && key <= NINE_PRESSED)
