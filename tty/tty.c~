@@ -45,7 +45,7 @@ void switch_to_tty(int id)
 	if(!tty_s[ctty].disp)
 	{
 		/* if no, create one */
-	tty_s[ctty].disp = arch_new_default_display(&tty_s[ctty]);
+	//	tty_s[ctty].disp = arch_new_default_display(&tty_s[ctty]);
 	}
 	/* call the tty's event handler of setactive */
 	tty_s[ctty].setactive(&tty_s[ctty]);
@@ -83,8 +83,8 @@ int tty_init(int ttys)
 			return 1;
 		tty_s[i].buflen = TTY_BUFFER_SIZE;
 		tty_s[i].bufpos = 0;
-		tty_s[i].disp = arch_new_default_display(&tty_s[i]);
-		tty_s[i].inp = arch_new_default_input(&tty_s[i]);
+		//tty_s[i].disp = arch_new_default_display(&tty_s[i]);
+		//tty_s[i].inp = arch_new_default_input(&tty_s[i]);
 	}
 	return 0;
 }
