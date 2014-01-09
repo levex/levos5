@@ -24,7 +24,13 @@ int arch_early_init()
 		return rc;
 	/* init PIT */
 	rc = pit_init();
-	
+	if (rc)
+		return rc;
+
+	rc = exceptions_init();
+	if (rc)
+		return rc;
+
 	/* init paging */
 	rc = paging_init();
 	
