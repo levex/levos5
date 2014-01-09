@@ -37,4 +37,6 @@ extern int tty_read(int id, uint8_t *buf, uint32_t len);
 extern void switch_to_tty(int id);
 extern int tty_current();
 
+extern void panic(uint8_t *buf);
+
 #endif

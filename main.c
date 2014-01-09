@@ -24,17 +24,20 @@ void main()
 		
 	rc = keyboard_init();
 	if (rc) {
-		tty_write(2, (uint8_t *)"Keyboard failure!", 18);
+		tty_write(2, (uint8_t *) "Keyboard failure!", 18);
 		tty_flush(2);
 		switch_to_tty(2);
 	}
 	
+	switch_to_tty(0);
 	
-	tty_write(1, (uint8_t *)"tty1", 5);
+	scheduler_init();
+	
+	tty_write(1, (uint8_t *) "tty1", 5);
 	tty_flush(1);
 	
 
-	tty_write(0, (uint8_t *)"SYSTEM ONLINE", 13);
+	tty_write(0, (uint8_t *) "System online", 13);
 	tty_flush(0);
 	
 	tty_write(2, (uint8_t *) "second tty", 11);
@@ -42,6 +45,7 @@ void main()
 	
 	switch_to_tty(0);
 	interrupt_ctl(1);
+
 	
 	uint8_t *buf = malloc(64);
 	memset(buf, 0, 64);

@@ -13,6 +13,7 @@
 
 .section .bootstrap_stack
 stack_bottom:
+.align 4
 .skip 32768 # 16 KiB
 stack_top:
 

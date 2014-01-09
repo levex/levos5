@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <input.h>
 #include <display.h>
+#include <scheduler.h>
 
 #ifdef _ARCH__x86__
 	#include <x86.h>
@@ -12,6 +13,11 @@
 #ifdef _ARCH__arm__
 	#include <arm.h>
 #endif
+
+
+#define __noreturn  __attribute__((noreturn))
+#define __INLINE __attribute__((always_inline))
+#define __naked __attribute__((naked))
 
 /* arch-specific functions */
 
@@ -38,6 +44,18 @@ extern void *mm_alloc_pages(int pages);
 
 /* free those */
 extern int mm_free_pages(void *ptr, int pages);
+
+/* Load the stack pointer with a value and store the original to a value */
+extern void load_stack(uint32_t new, uint32_t *old);
+
+/* Switch context to thread */
+extern void switch_to_thread();
+
+/* enable the timer to call scheduler_switch() */
+extern void enable_scheduling();
+
+/* save registers into a trapframe */
+extern void arch_save_registers(struct trapframe *frame);
 
 /* inport, outport */
 uint8_t inportb(uint16_t portid);

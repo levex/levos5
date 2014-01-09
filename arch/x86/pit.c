@@ -1,6 +1,7 @@
 #include <hal.h>
 #include <x86.h>
 #include <stdint.h>
+#include <scheduler.h>
 
 #define PIT_REG_COUNTER0 0x40
 #define PIT_REG_COUNTER1 0x41
@@ -31,13 +32,19 @@
 #define PIT_OCW_COUNTER_1 0x40 //01000000
 #define PIT_OCW_COUNTER_2 0x80 //10000000
 
+extern int task;
+extern uint32_t kernel_stack;
+extern uint32_t user_stack;
+
 void pit_irq()
 {
-		asm volatile("add $0x1c, %esp");
-		asm volatile("pusha");
-		send_eoi(0);
-		asm volatile("popa");
-		asm volatile("iret");
+	asm volatile("add $0x1c, %esp");
+	asm volatile("cmp $1, %0"::"m"(task));
+	asm volatile("je scheduler_switch");
+	asm volatile("pusha");
+	send_eoi(0);
+	asm volatile("popa");
+	asm volatile("iret");
 }
 
 static inline void __pit_send_cmd(uint8_t cmd)

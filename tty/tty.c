@@ -3,6 +3,7 @@
 #include <tty.h>
 #include <textmode.h>
 #include <hal.h>
+#include <string.h>
 
 struct tty *tty_s;
 
@@ -89,6 +90,13 @@ int tty_init(int ttys)
 	return 0;
 }
 
+void panic(uint8_t *buf)
+{
+    tty_write(tty_current(), (uint8_t *)"PANIC:", 6);
+    tty_write(tty_current(), buf, strlen(buf));
+    tty_flush(tty_current());
+    for(;;);
+}
 
 void tty_write(int id, uint8_t *buf, uint32_t len)
 {
