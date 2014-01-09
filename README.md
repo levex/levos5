@@ -25,6 +25,7 @@ Features
 * ARM support
 * Liballoc
 * Display abstraction
+* Multitasking
 
 
 Portability support
@@ -75,3 +76,8 @@ Display abstraction
 ===================
 
 LevOS5 uses alot of layers for abstraction. First there is the display layer which will copy from the tty buffer and display the data stored in that tty buffer. The actual output is based on how the display handles the buffer of the tty. This way LevOS5 doesn't need to care about the actual display stuff, but rather write to the tty buffer and flush that if the display needs to be updated.
+
+Multitasking
+============
+
+LevOS5 uses preemptive multitasking in kernel mode. This is currently only supported on the x86 architecture, but will be soon implemented on the ARM architecture as well. Scheduling is done by making the architecture call 'scheduler_switch()' and then let the rest do the magic. :-) LevOS5 uses a simple round robin algorithm for scheduling and supports a maximum of 16 processes each with 16 threads. However, currently each process can contain one thread.
