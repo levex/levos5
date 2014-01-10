@@ -1,10 +1,27 @@
 #include <display.h>
 #include <textmode.h>
 #include <mm.h>
+#include <mutex.h>
 
 #pragma GCC diagnostic ignored "-Wsign-compare"
 
-int textmode_update(struct display *m)
+#define AS_TEXTMODE_PRIVATE(x) ((struct textmode_private *)(x))
+
+struct textmode_private {
+	uint32_t x;
+	uint32_t y;
+	uint32_t last_page;
+	mutex m;
+};
+
+struct textmode_private priv = {
+	.x = 0,
+	.y = 0,
+	.last_page = 0,
+	INIT_MUTEX(.m),
+};
+
+void textmode_scrollup(struct display *m)
 {
 	/* TODO: handle newlines! */
 	for(int i = 0; i < m->mtty->bufpos; i++)
@@ -45,6 +62,9 @@ struct display *textmode_display_new(struct tty *mtty)
 	struct display *cp = malloc(sizeof(struct display));
 	/* copy to the new allocation the default settings of textmode */
 	memcpy((uint8_t *)cp, (uint8_t *)&__default_textmode, sizeof(struct display));
+	/* allocate space for a new priv data */
+	struct textmode_private *p = malloc(sizeof(struct textmode_private));
+	cp->priv = p;
 	/* set the tty of the copied display */
 	cp->mtty = mtty;
 	/* no need to set the tty's disp field, as we are called so that our
