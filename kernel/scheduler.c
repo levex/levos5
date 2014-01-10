@@ -14,7 +14,7 @@ struct thread *mt = 0;
 
 void idle_task()
 {
-	tty_write(tty_current(), (uint8_t *)"  IDLE TASK  ", 13);
+	tty_write(tty_current(), (uint8_t *)"Tasking online.\n", 16);
 	tty_flush(tty_current());
 	enable_scheduling();
 	while(1) schedule_noirq();
@@ -280,7 +280,7 @@ void __start_sched()
  */
 void scheduler_init()
 {
-	tty_write(0, (uint8_t *)"Initializing scheduler", 23);
+	tty_write(0, (uint8_t *)"Initializing scheduler\n", 24);
 	tty_flush(0);
 	
 	int rc = scheduler_add_process(create_new_process((uint8_t *)"idletsk", (uint32_t)idle_task));
