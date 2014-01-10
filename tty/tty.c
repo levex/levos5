@@ -4,6 +4,7 @@
 #include <textmode.h>
 #include <hal.h>
 #include <string.h>
+#include <mutex.h>
 
 struct tty *tty_s;
 
@@ -13,8 +14,10 @@ int ctty = 0;
 int tty_generic_write(struct tty *m, uint8_t *buf, uint32_t len)
 {
 	if(m->bufpos + len > m->buflen) return 1;
+	mutex_lock(&m->m_lock);
 	memcpy(m->buffer + m->bufpos, buf, len);
 	m->bufpos += len;
+	mutex_unlock(&m->m_lock);
 	return 0;
 }
 
@@ -72,6 +75,7 @@ int tty_init(int ttys)
 	tty_s = malloc(sizeof(struct tty) * ttys);
 	if (!tty_s)
 		return 1;
+	memset(tty_s, 0, sizeof( struct tty ));
 	for(int i = 0; i < ttys; i++)
 	{
 		tty_s[i].id = i;

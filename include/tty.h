@@ -3,6 +3,7 @@
 
 #include <display.h>
 #include <stdint.h>
+#include <mutex.h>
 
 #define TTY_FLAG_ACTIVE 1 /* tty is the current output stream */
 #define TTY_FLAG_ONLINE 2 /* tty is online and processes input */
@@ -22,6 +23,7 @@ struct tty {
 	int (*setactive)(struct tty *m);
 	struct display *disp;
 	struct input   *inp;
+	mutex m_lock;
 	uint8_t *buffer;
 	uint32_t buflen;
 	uint32_t bufpos;
