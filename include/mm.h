@@ -34,5 +34,6 @@ void      free(void *);
 
 void* memset (void * ptr, int value, int num );
 void memcpy(uint8_t *dest, uint8_t *src, uint32_t len);
+void* memset16 (void * ptr, uint16_t value, int num );
 
 #endif

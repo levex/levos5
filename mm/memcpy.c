@@ -28,3 +28,11 @@ void* memset (void * ptr, int value, int num )
                 *p++ = (unsigned char)value;
         return ptr;
 }
+
+void* memset16 (void * ptr, uint16_t value, int num )
+{
+        uint16_t* p = ptr;
+        while(num--)
+                *p++ = value;
+        return ptr;
+}
