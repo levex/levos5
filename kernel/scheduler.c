@@ -17,8 +17,8 @@ void idle_task()
 	tty_write(tty_current(), (uint8_t *)"  IDLE TASK  ", 13);
 	tty_flush(tty_current());
 	enable_scheduling();
-	while(1);
-	for(;;);
+	while(1) schedule_noirq();
+	for(;;) schedule_noirq();
 }
 
 /**

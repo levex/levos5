@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <hal.h>
 #include <x86.h>
+#include <scheduler.h>
 
 static uint32_t idt_location = 0;
 static uint32_t idtr_location = 0;
@@ -62,7 +63,7 @@ int idt_init()
         {
                 if(test_success != 0)
                 {
-                        idt_register_interrupt(0x2F, (uint32_t)&__idt_default_handler);
+                        idt_register_interrupt(0x2F, (uint32_t)&scheduler_switch);
                         break;
                 }
         }

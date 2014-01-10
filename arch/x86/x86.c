@@ -86,6 +86,11 @@ void load_stack(uint32_t new, uint32_t *old)
 	asm volatile("mov %%eax, %%esp": :"a"(new));
 }
 
+void schedule_noirq()
+{
+	asm volatile("int $0x2f");
+}
+
 /* defined by the scheduler */
 extern struct thread *__old__thread;
 extern struct thread *__new__thread;

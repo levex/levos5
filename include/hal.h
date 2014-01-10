@@ -54,8 +54,8 @@ extern void switch_to_thread();
 /* enable the timer to call scheduler_switch() */
 extern void enable_scheduling();
 
-/* save registers into a trapframe */
-extern void arch_save_registers(struct trapframe *frame);
+/* forcibly schedule away */
+extern void schedule_noirq();
 
 /* inport, outport */
 uint8_t inportb(uint16_t portid);
