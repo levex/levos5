@@ -23,19 +23,52 @@ struct textmode_private priv = {
 
 void textmode_scrollup(struct display *m)
 {
-	/* TODO: handle newlines! */
-	for(int i = 0; i < m->mtty->bufpos; i++)
+	m = m;
+	for(int y = 0; y < 25; y++)
 	{
-		uint32_t index = 0xB8000 + i*2;
-		*(uint16_t *)(index) = 0x1f << 8 | m->mtty->buffer[i];
+		memcpy((uint8_t *)(0xb8000 + y*80*2) ,
+				(uint8_t *)(0xb8000 + (y+1)*80*2),
+				80*2);
 	}
-	return 0;
+	memset16((char *)(0xb8000 + 25*80*2), 0x1f << 8 | ' ', 80*2);
 }
 
 void textmode_putchar(struct display *m, char c)
 {
-	m = m;
-	c = c;
+	if(!c)
+		return;
+
+	if(AS_TEXTMODE_PRIVATE(m->priv)->x > 80 || c == '\n') {
+		AS_TEXTMODE_PRIVATE(m->priv)->y ++;
+		AS_TEXTMODE_PRIVATE(m->priv)->x = 0;
+	}
+	if(AS_TEXTMODE_PRIVATE(m->priv)->y > 25) {
+		textmode_scrollup(m);
+		AS_TEXTMODE_PRIVATE(m->priv)->last_page += 80;
+		AS_TEXTMODE_PRIVATE(m->priv)->x = 0;
+		AS_TEXTMODE_PRIVATE(m->priv)->y --;
+	}
+	if(c == '\n')
+		goto out;
+	uint32_t index = 80*2 * AS_TEXTMODE_PRIVATE(m->priv)->y + AS_TEXTMODE_PRIVATE(m->priv)->x*2;
+	*(uint16_t *)(0xb8000 + index) = 0x1f << 8 | c;
+	AS_TEXTMODE_PRIVATE(m->priv)->x ++;
+
+out:
+	return;
+}
+
+int textmode_update(struct display *m)
+{
+	mutex_lock(&AS_TEXTMODE_PRIVATE(m->priv)->m);
+	AS_TEXTMODE_PRIVATE(m->priv)->x = 0;
+	AS_TEXTMODE_PRIVATE(m->priv)->y = 0;
+	for(int i = AS_TEXTMODE_PRIVATE(m->priv)->last_page; i < m->mtty->bufpos; i++)
+	{
+		textmode_putchar(m, m->mtty->buffer[i]);
+	}
+	mutex_unlock(&AS_TEXTMODE_PRIVATE(m->priv)->m);
+	return 0;
 }
 
 int textmode_setactive(struct display *m)
