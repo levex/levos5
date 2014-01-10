@@ -88,7 +88,8 @@ void load_stack(uint32_t new, uint32_t *old)
 
 void schedule_noirq()
 {
-	asm volatile("int $0x2f");
+	if ( task )
+		asm volatile("int $0x2f");
 }
 
 /* defined by the scheduler */
