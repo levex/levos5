@@ -201,6 +201,7 @@ void scheduler_switch()
 {
 	SAVE_REGISTERS_STACK;
 	__p = 0;
+	/* select a process */
 	while(!__p) {
 		last_process++;
 		if (last_process >= MAX_PROCESSES) {
@@ -208,7 +209,15 @@ void scheduler_switch()
 		}
 		__p = processes[last_process];
 	}
-	__t = __p->threads[0];
+	/* select a thread */
+	__t = 0;
+	while(!__t) {
+		__p->lastthread++;
+		if (__p->lastthread >= MAX_THREADS) {
+			__p->lastthread = 0;
+		}
+		__t = __p->threads[__p->lastthread];
+	}
 	LOAD_REGISTERS_STACK;
 	SWITCH_THREAD(__t);
 }
@@ -276,17 +285,13 @@ void scheduler_init()
 	
 	int rc = scheduler_add_process(create_new_process((uint8_t *)"idletsk", (uint32_t)idle_task));
 	if(rc) {
-		tty_write(0, (uint8_t *)"couldn't add process#1", 23);
-		tty_flush(0);
+		panic((uint8_t *)"Couldn't create idle task!");
 	}
-	rc = scheduler_add_process(create_new_process((uint8_t *)"taskone", (uint32_t)task_1));
+	struct process *testproc = create_new_process((uint8_t *)"test", (uint32_t)task_1);
+	create_new_thread(testproc, (uint32_t)task_2);
+	rc = scheduler_add_process(testproc);
 	if(rc) {
-		tty_write(0, (uint8_t *)"couldn't add process#2", 23);
-		tty_flush(0);
-	}
-	rc = scheduler_add_process(create_new_process((uint8_t *)"tasktwo", (uint32_t)task_2));
-	if(rc) {
-		tty_write(0, (uint8_t *)"couldn't add process#3", 23);
+		tty_write(0, (uint8_t *)"Couldn't create test task!", 26);
 		tty_flush(0);
 	}
 	
