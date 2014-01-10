@@ -10,6 +10,7 @@ struct display {
 	int (*update)(struct display *m);
 	void (*putchar)(struct display *m, char c);
 	int (*setactive)(struct display *m);
+	void *priv;
 	struct tty *mtty;
 };
 

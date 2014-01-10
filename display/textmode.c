@@ -35,6 +35,7 @@ struct display __default_textmode = {
 	.update = textmode_update,
 	.putchar = textmode_putchar,
 	.setactive = textmode_setactive,
+	.priv = 0,
 	.mtty = 0,
 };
 
