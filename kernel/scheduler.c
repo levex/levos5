@@ -86,6 +86,8 @@ int create_new_thread(struct process *p, uint32_t s)
 	/* increment the number of threads controlled by the process */
 	p->threadslen ++;
 	
+	scheduler_ctl(1);
+	
 	return 0;
 err_s:
 	free(t);
