@@ -12,10 +12,13 @@ static uint8_t last_process = 0;
 struct process *processes[MAX_PROCESSES] = {0};
 struct thread *mt = 0;
 
+extern void late_init();
+
 void idle_task()
 {
 	tty_write(tty_current(), (uint8_t *)"Tasking online.\n", 16);
 	tty_flush(tty_current());
+	scheduler_add_process(create_new_process((uint8_t *)"late_init", (uint32_t)late_init));
 	enable_scheduling();
 	while(1) schedule_noirq();
 	for(;;) schedule_noirq();
