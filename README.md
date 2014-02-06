@@ -26,6 +26,13 @@ Features
 * Liballoc
 * Display abstraction
 * Multitasking
+* Floppy support
+* Virtual filesystem
+* EXT2 filesystem support
+* Simple /proc with pseudo-files
+* ELF executable loading
+* fork() system call
+* initrd
 
 
 Portability support
@@ -45,7 +52,8 @@ Buffered tty. TTYs are the top layer of LevOS5. Each tty can be connected to one
 PS/2 keyboard driver
 ====================
 
-A very simple buffered keyboard driver. Handles the IRQ and pushes the ASCII code to a FIFO buffer.
+A simple buffered keyboard driver. Handles the IRQ and pushes the ASCII code to a FIFO buffer. Supporting uppercase with
+shift, and CAPSLOCK as well. Current scancode set is the ENGLISH keyboard.
 
 Interrupt processing
 ====================
@@ -81,3 +89,50 @@ Multitasking
 ============
 
 LevOS5 uses preemptive multitasking in kernel mode. This is currently only supported on the x86 architecture, but will be soon implemented on the ARM architecture as well. Scheduling is done by making the architecture call 'scheduler_switch()' and then let the rest do the magic. :-) LevOS5 uses a simple round robin algorithm for scheduling and supports a maximum of 16 processes each with 16 threads. However, currently each process can contain one thread.
+
+Floppy support
+==============
+
+LevOS can read (and write) to floppy disks. Currently only one floppy disk is supported. This driver is temporarily in
+use, we shall switch to ATA once I finish that driver. The floppy support also includes a DMA driver, which is
+Direct-Memory-Access.
+
+Virtual filesystem
+==================
+
+The virtual filesystem allows the mounting of 32 devices. Devices can beof different filesystems. The passed path to
+device_try_to_mount() will need to NOT exist. This allows you to mount so called floaty-mounts.
+
+
+Ext2 filesystem support
+=======================
+
+LevOS5.0 can mount and read ext2 filesystems. Directories are handled with care, but they are stable. Unexisting files
+passed might cause a few errors and crashes, but the updated exception handler should prevent the computer from
+crashing.
+
+Procfs
+======
+
+Inside /proc, you will find a devconf file, to which you can write usingopen(2) and write(2). You will be able to
+read(2) the data back once you finish writing.
+
+Elf executable loading
+======================
+
+ELF executables are properly parsed and loaded to memory. Since LevOS implements execve(2) you can pass parameters to
+applications. However, environment variables are not yet supported.
+
+fork()
+=====
+
+Fork is a system call to allow a process to 'fork', i.e. create a new process which starts execution from where the
+parent is. This is a very powerful system call, and has been implemented in LevOS.
+
+initrd
+======
+
+LevOS can boot from an initrd, that will be mounted by the ext2 driver. No other formatting is supported at the moment.
+:(
+
+
