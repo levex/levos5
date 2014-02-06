@@ -19,6 +19,33 @@ stack_top:
 
 .section .text
 
+.global sys_dispatch
+.type sys_dispatch, @function
+sys_dispatch:
+	call __imp_sys_dispatch
+    iret
+
+.global kbd_irq
+.type kbd_irq, @function
+kbd_irq:
+	call __imp_kbd_irq
+	iret
+
+.global read_eip
+.type read_eip, @function
+read_eip:
+	pop %eax
+	jmp %eax
+
+.global __sys__fork_cont
+.type __sys__fork_cont, @function
+__sys__fork_cont:
+	add $0x14, %esp
+	pop %esi
+	pop %ebx
+	call __imp__fork_cont
+	iret
+
 .global __idt_default_handler
 .type __idt_default_handler, @function
 __idt_default_handler:
@@ -81,7 +108,7 @@ _start:
 
 	movl $stack_top, %esp
 	mov $0x1337, %eax
-
+	push %ebx
 	call main
 	
 	mov $0xdeadc0de, %eax

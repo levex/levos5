@@ -27,6 +27,8 @@ struct tty {
 	uint8_t *buffer;
 	uint32_t buflen;
 	uint32_t bufpos;
+	uint8_t *inbuf;
+	uint32_t inbuflen;
 };
 
 extern int tty_init();
@@ -35,10 +37,10 @@ extern void tty_write(int id, uint8_t *buf, uint32_t len);
 extern void tty_flush(int id);
 
 extern int tty_read(int id, uint8_t *buf, uint32_t len);
+extern int tty_push_byte(int id, uint8_t c);
 
 extern void switch_to_tty(int id);
+extern struct tty *tty_get(int id);
 extern int tty_current();
-
-extern void panic(uint8_t *buf);
 
 #endif

@@ -92,15 +92,17 @@ void exc_ssf()
 
 void exc_gpf()
 {
-	kprintf("General protection fault.\n");
-	for(;;);
+	printk("General protection fault in process %s pid: %d\n", get_process()->namebuf, get_process()->pid);
+	scheduler_kill_self();
 	return;
 }
 
 void exc_pf()
 {
-	kprintf("Page fault!");
-	for(;;);
+	uint32_t cr2 = 0;
+	asm volatile("mov %%cr2, %%eax":"=a"(cr2));
+	printk("Page fault! [cr2: 0x%x] PROCESS: %s pid: %d\n", cr2, get_process()->namebuf, get_process()->pid);
+	scheduler_kill_self();
 }
 
 void exc_reserved()

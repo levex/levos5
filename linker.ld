@@ -20,7 +20,10 @@ SECTIONS
 	{
 		*(COMMON)
 		*(.bss)
-		*(.bootstrap_stack)
 	}
+    .bootstrap_stack BLOCK(4K) : ALIGN(4K)
+    {
+        *(.bootstrap_stack)
+    }
 	kernel_end = .;
 }

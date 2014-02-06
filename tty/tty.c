@@ -5,6 +5,8 @@
 #include <hal.h>
 #include <string.h>
 #include <mutex.h>
+#include <misc.h>
+#include <device.h>
 
 struct tty *tty_s;
 
@@ -55,19 +57,72 @@ void switch_to_tty(int id)
 	tty_s[ctty].setactive(&tty_s[ctty]);
 }
 
+int tty_push_byte(int id, uint8_t c)
+{
+	struct tty *m = &tty_s[id];
+	
+	m->inbuf[m->inbuflen] = c;
+	m->inbuflen ++;
+}
+
+struct tty *tty_get(int id) {
+	return &tty_s[id];
+}
+
+int tty_generic_read(struct tty *m, uint8_t *buf, uint32_t len)
+{
+	int copied = 0;
+	//mutex_lock(&m->m_lock);
+	
+	/* if we don't have anything in the input buffer, just return 0 */
+	if(m->inbuflen == 0 || !len) goto out;
+	
+	//printk("Trying to read %d bytes\n", len);
+	
+	/* try to copy as much as we can */
+	for(int i = 0; i < len; i++) {
+		/* if the input buffer has this byte... */
+		if(m->inbuf[i] && i <= m->inbuflen) {
+			/* ... then copy over */
+			buf[i] = m->inbuf[i];
+			/* increment stat variable */
+			copied ++;
+		/* ... if no, then break! */
+		} else break;
+	}
+	if(copied == 0) goto out;
+	//printk("Copied = %d\n", copied);
+	/* since we copied some bytes, substract from buffer length */
+	m->inbuflen -= copied;
+	
+	/* copy down (in the fifo) the remaining bytes */
+	memcpy(m->inbuf, m->inbuf + copied, TTY_BUFFER_SIZE - copied);
+	
+
+out: //mutex_unlock(&m->m_lock);
+	
+	return copied;
+}
+
 int tty_read(int id, uint8_t *buf, uint32_t len)
 {
 	struct tty *m = &tty_s[id];
-	if(m->inp)
-		return m->inp->read(m->inp, buf, len);
-	
-	m->inp = arch_new_default_input(m);
-	return 0;
+	return m->read(m, buf, len);
 }
 
 int tty_current()
 {
 	return ctty;
+}
+
+int tty_generic_dev_write(struct device *dev, uint8_t *buf, uint32_t st, uint32_t len)
+{
+	/* TODO */
+	dev = dev;
+	buf = buf;
+	len = len;
+	st = st;
+	return 0;
 }
 
 int tty_init(int ttys)
@@ -81,6 +136,7 @@ int tty_init(int ttys)
 		tty_s[i].id = i;
 		tty_s[i].flags = 0;
 		tty_s[i].write = tty_generic_write;
+		tty_s[i].read = tty_generic_read;
 		tty_s[i].setactive = tty_generic_setactive;
 		tty_s[i].flush = tty_generic_flush;
 		tty_s[i].buffer = malloc(TTY_BUFFER_SIZE);
@@ -88,18 +144,30 @@ int tty_init(int ttys)
 			return 1;
 		tty_s[i].buflen = TTY_BUFFER_SIZE;
 		tty_s[i].bufpos = 0;
+		tty_s[i].inbuf = malloc(TTY_BUFFER_SIZE);
+		
+		if(!tty_s[i].inbuf)
+			return 1;
+		tty_s[i].inbuflen = 0;
 		tty_s[i].disp = arch_new_default_display(&tty_s[i]);
 		tty_s[i].inp = arch_new_default_input(&tty_s[i]);
+		
+		struct device *tdev = malloc(sizeof(struct device));
+		if (!tdev)
+			return 1;
+		tdev->id = tty_s[i].id;
+		uint8_t *namebuf = malloc(32);
+		if (!namebuf)
+			return 1;
+		memcpy(namebuf, (uint8_t*)"tty", 3);
+		itoa(tty_s[i].id, 10, (char *) (namebuf + 3));
+		tdev->valid = 1;
+		tdev->name = (char *)namebuf;
+		tdev->write = tty_generic_dev_write;
+		
+		device_register(tdev);
 	}
 	return 0;
-}
-
-void panic(uint8_t *buf)
-{
-    tty_write(tty_current(), (uint8_t *)"PANIC:", 6);
-    tty_write(tty_current(), buf, strlen(buf));
-    tty_flush(tty_current());
-    for(;;);
 }
 
 void tty_write(int id, uint8_t *buf, uint32_t len)

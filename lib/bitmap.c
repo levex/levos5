@@ -34,5 +34,7 @@ int bitmap_find_zero(uint8_t *b, uint32_t nr)
 	for(int i = start; i < start + streak; i++)
 		set_bitmap(b, i);
 	
+	//printk("request of bitmap: %d -> %d\n", start, start+nr);
+	
 	return start;
 }

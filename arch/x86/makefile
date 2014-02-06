@@ -17,7 +17,7 @@ OBJS += arch/x86/exceptions.o
 
 STARTFILE := arch/x86/start.o
 arch/x86/start.o: arch/x86/start.s
-	@echo "AS          $@"
+	@echo "  AS          $@"
 	@$(AS) -c $< -o $@
 
 

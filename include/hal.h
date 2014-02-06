@@ -32,6 +32,8 @@ extern int register_interrupt(int no, void(*func)());
 extern int send_eoi(int no);
 /* enable(1) or disable(0) interrupts */
 extern int interrupt_ctl(int enable);
+/* return 1 if the interrupts are enabled, 0 otherwise */
+extern int interrupts_enabled();
 
 /* return a pointer to a new default display for a tty */
 extern struct display *arch_new_default_display(struct tty *mtty);
@@ -57,6 +59,9 @@ extern void enable_scheduling();
 /* forcibly schedule away */
 extern void schedule_noirq();
 
+/* init system call interface, by registering an INT to sys_dispatch() */
+extern void syscall_init();
+
 /* inport, outport */
 uint8_t inportb(uint16_t portid);
 uint16_t inportw(uint16_t portid);
@@ -73,5 +78,7 @@ extern uint32_t inportl(uint16_t portid);
 extern void outportb(uint16_t portid, uint8_t value);
 extern void outportw(uint16_t portid, uint16_t value);
 extern void outportl(uint16_t portid, uint32_t value);
+
+extern void sys_dispatch();
 
 #endif

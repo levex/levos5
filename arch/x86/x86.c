@@ -6,6 +6,8 @@
 #include <display.h>
 #include <input.h>
 #include <keyboard.h>
+#include <syscall.h>
+#include <vfs.h>
 
 extern uint32_t kernel_stack;
 
@@ -48,12 +50,89 @@ int arch_late_init()
 	return 0;
 }
 
+void __imp_sys_dispatch()
+{
+	uint32_t eax = 0, ebx = 0, ecx = 0, edx = 0;
+	asm volatile("xchg %%eax, %%eax":"=a"(eax));
+	asm volatile("xchg %%ebx, %%ebx":"=b"(ebx));
+	asm volatile("xchg %%ecx, %%ecx":"=c"(ecx));
+	asm volatile("xchg %%edx, %%edx":"=d"(edx));
+	/*if(eax > 0xdf)
+		printk("SYSCALL: 0x%x 0x%x 0x%x 0x%x\n", eax, ebx, ecx, edx);*/
+	switch(eax) {
+		case 0x1: {
+			sys_exit(ebx);
+			return;
+		}
+		case 0x2: {
+			asm volatile("mov %0, %%eax"::"a"(sys_fork()));
+			return;
+		}
+		case 0x3: {
+			asm volatile("mov %0, %%eax"::"a"(sys_read(ebx, (uint8_t *)ecx, edx)));
+			return;
+		}
+		case 0x4: {
+			sys_write(ebx, (uint8_t *)ecx, edx);
+			return;
+		}
+		case 0x5: {
+			asm volatile("mov %0, %%eax"::"a"(sys_open((char *)ebx, (int)ecx)));
+			return;
+		}
+		case 0xB: {
+			asm volatile("mov %0, %%eax"::"a"(sys_execve((char *)ebx, (char **)ecx, (char **)edx)));
+			return;
+		}
+		case 0x12: {
+			sys_stat(ebx, (struct stat *)ecx);
+			return;
+		}
+		case 0x14: {
+			asm volatile("mov %0, %%eax"::"a"(sys_getpid()));
+			return;
+		}
+		case 0xe0: {
+			sys_uname(ebx);
+			return;
+		}
+		case 0xed: {
+			asm volatile("mov %0, %%eax"::"a"(sys_opendir((char *)ebx)));
+			return;
+		}
+		case 0xee: {
+			asm volatile("mov %0, %%eax"::"a"(sys_readdir(ebx)));
+			return;
+		}
+		case 0xef: {
+			sys_waitpid(ebx);
+			return;
+		}
+	}
+	return;
+}
+
+void syscall_init()
+{
+	register_interrupt(0x80, sys_dispatch);
+}
+
+int __irq_enabled = 0;
+
+int interrupts_enabled()
+{
+	return __irq_enabled;
+}
+
 int interrupt_ctl(int e)
 {
-	if(e)
+	if(e) {
+		__irq_enabled = 1;
 		asm volatile("sti");
-	else
+	} else {
+		__irq_enabled = 0;
 		asm volatile("cli");
+	}
 		
 	return 0;
 }
@@ -88,7 +167,7 @@ void load_stack(uint32_t new, uint32_t *old)
 
 void schedule_noirq()
 {
-	if ( task )
+	if ( task && interrupts_enabled() )
 		asm volatile("int $0x2f");
 }
 
@@ -115,6 +194,7 @@ void switch_to_thread()
 		asm volatile("mov %%esp, %%eax": "=a"(__old__thread->stack));
 __no__old__thread:
 	/* load stack */
+	asm volatile("mov %%eax, %%cr3"::"a"(*__new__thread->paged));
 	asm volatile("mov %%eax, %%esp"::"a"(__new__thread->stack));
 	asm volatile("pop %gs");
 	asm volatile("pop %fs");

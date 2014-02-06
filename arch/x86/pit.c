@@ -42,6 +42,8 @@ void pit_irq()
 	asm volatile("cmp $1, %0"::"m"(task));
 	asm volatile("je scheduler_switch");
 	asm volatile("pusha");
+	if(! interrupts_enabled())
+		panic("IRQ Context when interrupts are disabled!\n");
 	send_eoi(0);
 	asm volatile("popa");
 	asm volatile("iret");
