@@ -209,17 +209,20 @@ int sys_execve(char *path, char *const argv[], char *envp[])
 	ptr = buf;
 	esize = size;
 	/* create the argv buffer */
-	int argc = 0;
-	while(argv[argc]) argc ++;
-	//printk("%s: argc=%d\n", __func__, argc);
-	char **argv_k = malloc((argc + 1) * sizeof(char *));
-	for(int i = 0; i < argc; i++)
-	{
-		char *str = malloc(strlen(argv[i]) + 1);
-		memcpy(str, argv[i], strlen(argv[i]) + 1);
-		argv_k[i] = str;
+	char **argv_k = 0;
+	if(argv) {
+		int argc = 0;
+		while(argv[argc]) argc ++;
+		//printk("%s: argc=%d\n", __func__, argc);
+		argv_k = malloc((argc + 1) * sizeof(char *));
+		for(int i = 0; i < argc; i++)
+		{
+			char *str = malloc(strlen(argv[i]) + 1);
+			memcpy(str, argv[i], strlen(argv[i]) + 1);
+			argv_k[i] = str;
+		}
+		argv_k[argc] = 0;
 	}
-	argv_k[argc] = 0;
 	/* read the file in */
 	vfs_read_full(fl, buf);
 	/* start a new process from the stub */

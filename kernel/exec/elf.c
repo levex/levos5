@@ -69,8 +69,8 @@ uint8_t elf_start(uint8_t *buf, uint32_t esize, char *const argv[], char *envp[]
 	}
 	/* Program loaded, jump to execution */
 	int argc = 0;
-	while(argv[argc]) argc++;
-	//printk("%s: argc=%d\n", __func__, argc);
+	if(argv)
+		while(argv[argc]) argc++;
 	asm volatile("jmp %%eax"::"a"(header->e_entry),"b"(argv),"c"(argc));
 	return 0;
 }
