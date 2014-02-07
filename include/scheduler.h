@@ -15,6 +15,7 @@ struct thread {
 	volatile uint32_t stack; /* stack pointer */
 	volatile uint32_t stacktop;
 	volatile uint32_t *stackbot;
+	uint32_t rstack;
 	uint32_t *paged; /* points to the processes' paged filed */
 	struct trapframe *frame;
 };

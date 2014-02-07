@@ -30,17 +30,19 @@ void phymem_init_level_one(uint32_t start)
  * 
  * THIS IS LEVEL __TWO__ of INIT.
  */
-void phymem_init_level_two(uint32_t size)
+void phymem_init_level_two(uint32_t end)
 {
 	if (__phy_state != PHY_STATE_INIT_ONE)
 		panic("phymem state is not one in level2!\n");
 
 	/* setup mandatory variables */
-	__phy_size = size;
-	__phy_end = __phy_start + __phy_size;
+	__phy_end = end;
+	if(__phy_end < __phy_start)
+		panic("Impossible physical address layout!\n");
+	
+	uint32_t size = __phy_size = __phy_end - __phy_start;
 	
 	/* setup bitmap */
-	
 	/* find out the amount of pages */
 	int pages = (size / 4096) + 1;
 	/* find out the number of bytes required */
@@ -89,7 +91,10 @@ void *phymem_alloc(uint32_t size)
 {
 	/* find out how many pages do we need */
 	int ps = (size / 0x1000) + 1;
-	return phymem_alloc_pages(ps);
+	//printk("For size %d bytes we allocated %d pages.\n", size, ps);
+	void *ret = phymem_alloc_pages(ps);
+	memset(ret, 0, size);
+	return ret;
 }
 
 /**
@@ -99,5 +104,6 @@ void phymem_free(void *ptr, uint32_t size)
 {
 	/* find out how many pages do we need */
 	int ps = (size / 0x1000) + 1;
+	//printk("We freed %d bytes or %d pages from 0x%x\n", size, ps, ptr);
 	phymem_free_pages(ptr, ps);
 }

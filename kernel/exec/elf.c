@@ -43,6 +43,8 @@ uint8_t elf_start(uint8_t *buf, uint32_t esize, char *const argv[], char *envp[]
 	elf_program_header_t *ph = (elf_program_header_t *)(buf + header->e_phoff);
 	/* create new page directory */
 	uint32_t palloc = phymem_alloc(esize);
+	uint32_t opalloc = get_process()->palloc;
+	uint32_t opalloc_len = get_process()->palloc_len;
 	uint32_t *paged = create_new_page_directory(0x400000, palloc);
 	started ++;
 	//printk("Would set to 0x%x\n", (uint32_t)paged); for(;;);
@@ -50,6 +52,7 @@ uint8_t elf_start(uint8_t *buf, uint32_t esize, char *const argv[], char *envp[]
 	get_process()->palloc = palloc;
 	get_process()->palloc_len = esize;
 	get_process()->exec_len = esize;
+
 	/* schedule away to update cr3! */
 	schedule_noirq();
 	for(int i = 0; i < header->e_phnum; i++, ph++)
@@ -67,10 +70,15 @@ uint8_t elf_start(uint8_t *buf, uint32_t esize, char *const argv[], char *envp[]
 		 	 return 0;
 		 }
 	}
+
 	/* Program loaded, jump to execution */
 	int argc = 0;
 	if(argv)
 		while(argv[argc]) argc++;
+
+	free(buf);
+	if(opalloc)
+		phymem_free(opalloc, opalloc_len);
 	asm volatile("jmp %%eax"::"a"(header->e_entry),"b"(argv),"c"(argc));
 	return 0;
 }

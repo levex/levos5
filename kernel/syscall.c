@@ -81,6 +81,7 @@ int sys_fork()
 		asm volatile("mov %%esp, %0":"=m"(esp));
 		stack = (uint32_t *)((uint32_t)stack + esp - (uint32_t)parent->threads[0]->stackbot);
 		replace_page(child->paged, parent->threads[0]->stack, (uint32_t)((uint32_t)rstack | 3));
+		t->rstack = rstack;
 		/* now create the process stub */
 		*--stack = 0x00000202; // eflags
 		*--stack = 0x8; // cs

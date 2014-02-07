@@ -57,8 +57,8 @@ void __imp_sys_dispatch()
 	asm volatile("xchg %%ebx, %%ebx":"=b"(ebx));
 	asm volatile("xchg %%ecx, %%ecx":"=c"(ecx));
 	asm volatile("xchg %%edx, %%edx":"=d"(edx));
-	/*if(eax > 0xdf)
-		printk("SYSCALL: 0x%x 0x%x 0x%x 0x%x\n", eax, ebx, ecx, edx);*/
+	//if(eax > 0xdf)
+		//printk("SYSCALL: 0x%x 0x%x 0x%x 0x%x\n", eax, ebx, ecx, edx);
 	switch(eax) {
 		case 0x1: {
 			sys_exit(ebx);
