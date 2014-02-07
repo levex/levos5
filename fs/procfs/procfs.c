@@ -22,6 +22,18 @@ struct device procfs_dev = {
 	.write = 0,
 };
 
+uint8_t *dummy_buffer = 0;
+uint32_t dummy_len = 0;
+
+void procfs_stat(char *file, struct stat *st, struct device *dev)
+{
+	if(!strcmp(file, "/devconf")) {
+		st->st_size = dummy_len;
+		return;
+	}
+	return;
+}
+
 struct filesystem procfs_default = {
 	.name = "procfs",
 	.probe = procfs_probe,
@@ -30,6 +42,7 @@ struct filesystem procfs_default = {
 	.read_dir = procfs_readdir, //uint8_t (*read_dir)(char *, char *, struct device *, void *);
 	.findinode = procfs_findinode,
 	.isdir = procfs_isdir,
+	.stat = procfs_stat,
 	.touch = 0,//uint8_t (*touch)(char *fn, struct device *, void *);
 	.writefile = procfs_writefile,//uint8_t (*writefile)(char *fn, char *buf, uint32_t len, struct device *, void *);
 	.exist = 0,//uint8_t (*exist)(char *filename, struct device *, void *);
@@ -77,8 +90,6 @@ uint8_t procfs_isdir(struct file *f, struct device *dev)
 	return (f->inode == 99);
 }
 
-uint8_t *dummy_buffer = 0;
-uint32_t dummy_len = 0;
 uint8_t procfs_findinode(char *fn, uint32_t *out, struct device *dev)
 {
 	if(strcmp(fn, "/devconf") == 0) {

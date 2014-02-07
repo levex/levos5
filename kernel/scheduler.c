@@ -122,6 +122,28 @@ err:
 }
 
 /**
+ * post_allocation - Adds an allocation to the list of allocations for
+ * 				the passed process
+ * 
+ * @p - The process to add the allocation to
+ * @base - The address that will be free'd.
+ * 
+ * \returns 0 if success, 1 if failure
+ */
+int post_allocation(struct process *p, uint32_t *base)
+{
+	if(!p || !base)
+		return 1;
+
+	if(p->allocs > MAX_ALLOCATIONS_PER_PROCESS)
+		return 1;
+		
+	p->allocation_table[p->allocs] = base;
+	p->allocs ++;
+	return 0;
+}
+
+/**
  * create_new_process_nothread - Create a new process without a thread
  * 
  * @namebuf - A ZTS that contains the name of the process
@@ -269,6 +291,11 @@ int scheduler_kill_self()
 		}
 	}
 	/* free the stuff registered with it */
+	for(int k = 0; k < get_process()->allocs; k++)
+	{
+		free(get_process()->allocation_table[k]);
+	}
+	/* free structure stuff */
 	free(__p->namebuf);
 	phymem_free(__p->palloc, __p->palloc_len);
 	free(__p->threads[0]->stackbot);

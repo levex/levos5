@@ -4,6 +4,7 @@
 #define MAX_THREADS 16
 #define MAX_PROCESSES 32
 #define MAX_FILEHANDLES 128
+#define MAX_ALLOCATIONS_PER_PROCESS 32
 
 #define THREAD_STACK_SIZE 4096
 #include <hal.h>
@@ -31,6 +32,8 @@ struct process {
 	uint32_t palloc_len;
 	uint32_t exec_len;
 	uint32_t open_handles;
+	uint32_t allocs;
+	uint32_t *allocation_table[MAX_ALLOCATIONS_PER_PROCESS];
 	struct file **filehandles;
 	struct thread *threads[MAX_THREADS]; /* array of MAX_THREADS pointers to the threads */
 };

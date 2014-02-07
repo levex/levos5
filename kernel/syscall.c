@@ -163,6 +163,9 @@ void sys_write(int fd, uint8_t *buf, int len)
 	if (fd == 1) { /* stdout */
 		tty_write(p->tty_id, buf, len);
 		tty_flush(p->tty_id);
+	} else {
+		struct file *fl = get_process()->filehandles[fd - 3];
+		return vfs_write(fl, buf, len);
 	}
 }
 

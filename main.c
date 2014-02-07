@@ -115,7 +115,7 @@ void start_shell()
 		struct process *p = create_new_process("shell", __start_shell);
 		__print_used_mem();
 		struct file *f = vfs_open("/proc/devconf");
-		vfs_write(f, "Hello DevConf 2014!", 20);
+		vfs_write(f, "Hello DevConf 2014!\n", 20);
 		if (!p)
 			printk("FATAL: failed to create shell process!\n");
 		int rc = scheduler_add_process(p);
