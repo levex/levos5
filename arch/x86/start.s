@@ -35,16 +35,7 @@ kbd_irq:
 .type read_eip, @function
 read_eip:
 	pop %eax
-	jmp %eax
-
-.global __sys__fork_cont
-.type __sys__fork_cont, @function
-__sys__fork_cont:
-	add $0x14, %esp
-	pop %esi
-	pop %ebx
-	call __imp__fork_cont
-	iret
+	jmp *%eax
 
 .global __idt_default_handler
 .type __idt_default_handler, @function

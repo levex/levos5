@@ -62,6 +62,10 @@ extern void schedule_noirq();
 /* init system call interface, by registering an INT to sys_dispatch() */
 extern void syscall_init();
 
+extern void arch_setup_paged(uint32_t *out, uint32_t palloc);
+
+extern uint32_t read_eip();
+
 /* inport, outport */
 uint8_t inportb(uint16_t portid);
 uint16_t inportw(uint16_t portid);

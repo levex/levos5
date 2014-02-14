@@ -8,6 +8,8 @@
 #include <misc.h>
 #include <device.h>
 
+#pragma GCC diagnostic ignored "-Wsign-compare"
+
 struct tty *tty_s;
 
 int ctty = 0;
@@ -63,6 +65,7 @@ int tty_push_byte(int id, uint8_t c)
 	
 	m->inbuf[m->inbuflen] = c;
 	m->inbuflen ++;
+	return 0;
 }
 
 struct tty *tty_get(int id) {

@@ -106,6 +106,11 @@ uint32_t *create_new_page_directory(uint32_t vaddr, uint32_t paddr) {
 	return pd;
 }
 
+void arch_setup_paged(uint32_t *paged, uint32_t palloc)
+{
+	*paged = (uint32_t)create_new_page_directory(0x400000, palloc);
+}
+
 /* replace a page in a pagetable to page */
 void replace_page(uint32_t **pd, uint32_t vaddr, uint32_t page) {
 	uint32_t vid = vaddr >> 22;

@@ -107,7 +107,7 @@ enum KEYCODE {
 	KEY_LEFTCURL = '{',
 	KEY_RIGHTCURL = '}',
 	KEY_DOLLAR = '$',
-	KEY_POUND = 'Ł',
+	KEY_POUND = '$',
 	KEY_EURO = '$',
 	KEY_LESS = '<',
 	KEY_GREATER = '>',
@@ -280,7 +280,7 @@ uint8_t keyboard_to_ascii(uint8_t key)
 		if (key >= 'a' && key <= 'z')
 			key -= 32;
 
-	if (_shift && !_capslock)
+	if (_shift && !_capslock) {
 		if (key >= '0' && key <= '9') {
 		switch (key) {
 			case '0':
@@ -350,6 +350,7 @@ uint8_t keyboard_to_ascii(uint8_t key)
 					key = KEY_BAR;
 					break;
 			}
+		}
 	}
 // return the key
 return key;
@@ -435,6 +436,7 @@ uint8_t parse_keycode(uint8_t code)
 			return key;
 		}
 	}
+	return 0;
 }
 
 extern void kbd_irq();

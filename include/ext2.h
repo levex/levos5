@@ -99,7 +99,7 @@ struct ext2_priv_data {
 extern int ext2_probe(struct device *dev);
 extern int ext2_mount(struct device *dev);
 
-extern void ext2_stat(char *filename, struct stat *st, struct device *dev);
+extern uint8_t ext2_stat(char *filename, struct stat *st, struct device *dev);
 extern void ext2_find_new_inode_id(uint32_t *id, struct device *dev);
 extern void ext2_read_block(uint8_t *buf, uint32_t block, struct device *dev);
 extern void ext2_write_block(uint8_t *buf, uint32_t block, struct device *dev);

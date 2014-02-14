@@ -85,7 +85,7 @@ void __imp_sys_dispatch()
 			return;
 		}
 		case 0x12: {
-			sys_stat(ebx, (struct stat *)ecx);
+			sys_stat((char *)ebx, (struct stat *)ecx);
 			return;
 		}
 		case 0x14: {
@@ -93,7 +93,7 @@ void __imp_sys_dispatch()
 			return;
 		}
 		case 0xe0: {
-			sys_uname(ebx);
+			sys_uname((struct utsname *)ebx);
 			return;
 		}
 		case 0xed: {

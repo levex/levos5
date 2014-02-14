@@ -3,6 +3,8 @@
 #include <elf.h>
 #include <scheduler.h>
 #include <string.h>
+#include <mm.h>
+#include <hal.h>
 
 static uint32_t started = 0;
 
@@ -34,6 +36,8 @@ uint32_t get_palloc_len(uint32_t palloc)
 
 uint8_t elf_start(uint8_t *buf, uint32_t esize, char *const argv[], char *envp[], elf_priv_data *priv)
 {
+	envp = envp;
+	priv = priv;
 	elf_header_t *header = (elf_header_t *)buf;
 	if(header->e_type != 2)
 	{
@@ -42,13 +46,14 @@ uint8_t elf_start(uint8_t *buf, uint32_t esize, char *const argv[], char *envp[]
 	/* Find first program header and loop through them */
 	elf_program_header_t *ph = (elf_program_header_t *)(buf + header->e_phoff);
 	/* create new page directory */
-	uint32_t palloc = phymem_alloc(esize);
+	uint32_t palloc = (uint32_t)phymem_alloc(esize);
 	uint32_t opalloc = get_process()->palloc;
 	uint32_t opalloc_len = get_process()->palloc_len;
-	uint32_t *paged = create_new_page_directory(0x400000, palloc);
+	uint32_t paged;
+	arch_setup_paged(&paged, palloc);
 	started ++;
 	//printk("Would set to 0x%x\n", (uint32_t)paged); for(;;);
-	get_process()->paged = (uint32_t)paged;
+	get_process()->paged = paged;
 	get_process()->palloc = palloc;
 	get_process()->palloc_len = esize;
 	get_process()->exec_len = esize;
@@ -64,7 +69,7 @@ uint8_t elf_start(uint8_t *buf, uint32_t esize, char *const argv[], char *envp[]
 		 	case 1: /* LOAD */
 		 		/*printk("LOAD: offset 0x%x vaddr 0x%x paddr 0x%x filesz 0x%x memsz 0x%x\n",
 		 				ph->p_offset, ph->p_vaddr, ph->p_paddr, ph->p_filesz, ph->p_memsz);*/
-		 		memcpy(ph->p_vaddr, buf + ph->p_offset, ph->p_filesz);
+		 		memcpy((uint8_t *)ph->p_vaddr, buf + ph->p_offset, ph->p_filesz);
 		 		break;
 		 	default: /* @TODO add more */
 		 	 return 0;
@@ -78,7 +83,7 @@ uint8_t elf_start(uint8_t *buf, uint32_t esize, char *const argv[], char *envp[]
 
 	free(buf);
 	if(opalloc)
-		phymem_free(opalloc, opalloc_len);
-	asm volatile("jmp %%eax"::"a"(header->e_entry),"b"(argv),"c"(argc));
+		phymem_free((void *)opalloc, opalloc_len);
+	START_EXECUTION_BY_JUMPING(header->e_entry, argv, argc);
 	return 0;
 }

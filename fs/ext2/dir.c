@@ -89,6 +89,8 @@ r0:
  */
 struct dirent *ext2_list_directory(struct file *f, struct device *dev)
 {
+	f = f;
+	dev = dev;
 	return 0;
 	/*char *dir = dd;
 	struct ext2_inode *inode = ext2_find_file_inode(dir, (struct ext2_inode *)buffer, dev);

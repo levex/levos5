@@ -3,6 +3,10 @@
 #include <procfs.h>
 #include <device.h>
 #include <mm.h>
+#include <string.h>
+
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#pragma GCC diagnostic ignored "-Wpointer-sign"
 
 static int procfs_mounted = 0;
 
@@ -25,13 +29,14 @@ struct device procfs_dev = {
 uint8_t *dummy_buffer = 0;
 uint32_t dummy_len = 0;
 
-void procfs_stat(char *file, struct stat *st, struct device *dev)
+uint8_t procfs_stat(char *file, struct stat *st, struct device *dev)
 {
+	dev = dev;
 	if(!strcmp(file, "/devconf")) {
 		st->st_size = dummy_len;
-		return;
+		return 0;
 	}
-	return;
+	return 1;
 }
 
 struct filesystem procfs_default = {
@@ -52,6 +57,7 @@ struct filesystem procfs_default = {
 struct dirent *procfs_readdir(struct file *f, struct device *dev)
 {
 	if(!f || !f->isdir) return 0;
+	dev = dev;
 	//printk("procfs_readdir! inode: %d dpos:%d\n", f->inode, f->dpos);
 	switch(f->inode)
 	{
@@ -87,11 +93,13 @@ struct dirent *procfs_readdir(struct file *f, struct device *dev)
 
 uint8_t procfs_isdir(struct file *f, struct device *dev)
 {
+	dev = dev;
 	return (f->inode == 99);
 }
 
 uint8_t procfs_findinode(char *fn, uint32_t *out, struct device *dev)
 {
+	dev = dev;
 	if(strcmp(fn, "/devconf") == 0) {
 		*out = 100;
 		return 0;
@@ -107,6 +115,7 @@ uint8_t procfs_findinode(char *fn, uint32_t *out, struct device *dev)
 
 uint32_t procfs_writefile(struct file *fl, uint8_t *buf, uint32_t len, struct device *dev)
 {
+	dev = dev;
 	switch(fl->inode)
 	{
 		case 100:
@@ -117,10 +126,12 @@ uint32_t procfs_writefile(struct file *fl, uint8_t *buf, uint32_t len, struct de
 			memcpy(dummy_buffer, buf, len);
 			return len;
 	}
+	return 0;
 }
 
 uint32_t procfs_read(struct file *f, uint8_t *buf, uint32_t len, struct device *dev)
 {
+	dev = dev;
 	switch(f->inode)
 	{
 		case 100:
@@ -137,6 +148,7 @@ uint32_t procfs_read(struct file *f, uint8_t *buf, uint32_t len, struct device *
 			}
 			break;
 	}
+	return 0;
 }
 
 int procfs_probe(struct device *dev)

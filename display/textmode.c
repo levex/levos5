@@ -72,6 +72,10 @@ out:
 
 void process_ansi_escape(uint8_t *fgcol, uint8_t *bgcol, struct tty *mtty, int *j)
 {
+	fgcol = fgcol;
+	bgcol = bgcol;
+	mtty = mtty;
+	j = j;
 #if 0
 	/* \[0;34;11m */
 	int start = *j;
@@ -156,7 +160,7 @@ struct display *textmode_display_new(struct tty *mtty)
 	memcpy((uint8_t *)cp, (uint8_t *)&__default_textmode, sizeof(struct display));
 	/* allocate space for a new priv data */
 	struct textmode_private *p = malloc(sizeof(struct textmode_private));
-	memcpy(p, &priv, sizeof(struct textmode_private));
+	memcpy((uint8_t *)p, (uint8_t *)&priv, sizeof(struct textmode_private));
 	cp->priv = p;
 	/* set the tty of the copied display */
 	cp->mtty = mtty;

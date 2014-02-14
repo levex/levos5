@@ -203,15 +203,15 @@ uint32_t ext2_read_file(struct file *fl, uint8_t *buf, uint32_t len, struct devi
 	} else if(bpos < SIZE_OF_SINGLY) {
 		/* in the singly linked list */
 	}
+	return 0;
 }
 
-void ext2_stat(char *file, struct stat *st, struct device *dev)
+uint8_t ext2_stat(char *file, struct stat *st, struct device *dev)
 {
 	//printk("%s: file=%s\n", __func__, file);
 	struct ext2_inode *inode = malloc(sizeof(struct ext2_inode));
 	uint32_t in = ext2_find_file_inode(file, inode, dev);
 	if (!in) goto out;
-	struct ext2_priv_data *priv = EXT2_PRIV(dev);
 	/* first check the type */
 	if(inode->type & 0xC000) st->st_mode |= S_IFSOCK;
 	if(inode->type & 0xA000) st->st_mode |= S_IFLNK;
@@ -233,6 +233,7 @@ void ext2_stat(char *file, struct stat *st, struct device *dev)
 out:
 	//printk("returning from %s\n", __func__);
 	free(inode);
+	return 0;
 }
 
 uint8_t ext2_exist(char *file, struct device *dev)

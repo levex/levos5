@@ -5,6 +5,8 @@
 #include <string.h>
 
 #pragma GCC diagnostic ignored "-Warray-bounds"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#pragma GCC diagnostic ignored "-Wpointer-sign"
 
 static uint8_t scheduler_status = 0;
 
@@ -74,7 +76,7 @@ int create_new_thread(struct process *p, uint32_t s, int a)
 	if(!stack)
 		goto err_s;
 	t->stackbot = stack;
-	memset(stack, 0, THREAD_STACK_SIZE);
+	memset((void *)stack, 0, THREAD_STACK_SIZE);
 	stack = (volatile uint32_t *)(((uint32_t)stack + 4000 )& 0xfffffff0);
 
 	volatile uint32_t stacktop = (uint32_t) stack;
@@ -158,7 +160,6 @@ struct process *create_new_process_nothread(uint8_t *namebuf)
 	* switch off the scheduler
 	*/
 
-	int rc = 0;
 	interrupt_ctl(0);
 
 	/* allocate space for the process */
@@ -188,7 +189,6 @@ struct process *create_new_process_nothread(uint8_t *namebuf)
 	interrupt_ctl(1);
 	return p;
 
-err_3:
 	free(name);
 err_2:
 	free(p);
@@ -297,8 +297,8 @@ int scheduler_kill_self()
 	}
 	/* free structure stuff */
 	free(__p->namebuf);
-	phymem_free(__p->palloc, __p->palloc_len);
-	free(__p->threads[0]->stackbot);
+	phymem_free((void *)__p->palloc, __p->palloc_len);
+	free((void *)__p->threads[0]->stackbot);
 	free(__p);
 	/* @TODO */
 	interrupt_ctl(1);
@@ -344,7 +344,6 @@ int scheduler_kill_pid(int pid)
  */
 int scheduler_add_process(struct process *p)
 {
-	int rc = 0;
 	int placed = 0;
 	
 	/* switch off scheduler to prevent damage */

@@ -201,6 +201,7 @@ uint32_t vfs_ls(char *dir, char* buffer)
 	 * For each mount, backspace one, compare with 'dir'
 	 * if yes, print out its dir name!
 	 */
+	buffer = buffer;
 	char *orig = (char *)malloc(strlen(dir) + 1);
 	memset(orig, 0, strlen(dir) + 1);
 	memcpy(orig, dir, strlen(dir) + 1);
@@ -214,7 +215,7 @@ uint32_t vfs_ls(char *dir, char* buffer)
 			if(strcmp(mount_points[i]->loc, orig) == 0)
 			{
 				/* Then adjust and send. */
-				mount_points[i]->dev->fs->read_dir(dir + strlen(mount_points[i]->loc) - 1,
+				mount_points[i]->dev->fs->read_dir((struct file *)(dir + strlen(mount_points[i]->loc) - 1),
 					/*buffer, */mount_points[i]->dev);
 				/* Now, we have found who hosts this directory, look
 				 * for those that are mounted to this directory's host.

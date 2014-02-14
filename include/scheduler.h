@@ -50,6 +50,6 @@ extern void scheduler_init();
 
 extern int scheduler_kill_self();
 
-#define START(name, entry) scheduler_add_process(create_new_process(name, entry));
+#define START(name, entry) scheduler_add_process(create_new_process(name, (uint32_t)entry));
 
 #endif

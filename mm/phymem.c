@@ -2,6 +2,8 @@
 #include <stdint.h>
 #include <bitmap.h>
 
+#pragma GCC diagnostic ignored "-Wsign-compare"
+
 static uint32_t __phy_start = 0;
 static uint32_t __phy_size = 0;
 static uint32_t __phy_end = 0;

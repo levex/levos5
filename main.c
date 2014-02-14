@@ -9,6 +9,12 @@
 #include <procfs.h>
 #include <dummyfs.h>
 #include <multiboot.h>
+#include <syscall.h>
+#include <elf.h>
+
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#pragma GCC diagnostic ignored "-Wpointer-sign"
+
 
 int root_mounted = 0;
 
@@ -60,7 +66,7 @@ void main(struct multiboot *mb)
 		panic("Ambigous module count!\n");
 	printk("addr: 0x%x\n", read_eip());
 	struct multiboot_mod *mod = (struct multiboot_mod *)mb->mods_addr;
-	initrd_create(mod->mod_start, mod->mod_end);
+	initrd_create((uint32_t *)mod->mod_start, (uint32_t *)mod->mod_end);
 
 	scheduler_init();
 	/*for(int i = 1; i < 11; i ++) 
@@ -112,8 +118,7 @@ void start_shell()
 	__esize = st.st_size;
 	memset(sh_buf, 0, st.st_size);
 	if(vfs_read_full(fl, sh_buf)) {
-		struct process *p = create_new_process("shell", __start_shell);
-		__print_used_mem();
+		struct process *p = create_new_process("shell", (uint32_t)__start_shell);
 		struct file *f = vfs_open("/proc/devconf");
 		vfs_write(f, "Hello DevConf 2014!\n", 20);
 		if (!p)
@@ -166,7 +171,6 @@ void late_init()
 	}
 	//ext2_read_root_directory(0, get_device(root_mounted));
 	list_mount();
-	ne2k_init();
 	//START("test_lol", test_lol);
 	START("test_lol2", test_lol2);
 	start_shell();

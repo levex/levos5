@@ -56,5 +56,7 @@ struct trapframe {
 
 #define IRQ_END asm volatile("popa"); \
         asm volatile("iret");
+        
+#define START_EXECUTION_BY_JUMPING(x, argv, argc) asm volatile("jmp *%%eax"::"a"(x),"b"(argv),"c"(argc));
 
 #endif

@@ -61,7 +61,7 @@ struct filesystem {
 	struct dirent * (*read_dir)(struct file *f, struct device *dev);
 	uint8_t (*isdir)(struct file *f, struct device *dev);
 	uint8_t (*touch)(char *fn, struct device *);
-	uint8_t (*writefile)(struct file *f, char *buf, uint32_t len, struct device *);
+	uint32_t (*writefile)(struct file *f, uint8_t *buf, uint32_t len, struct device *);
 	uint8_t (*stat)(char *fn, struct stat *st, struct device *dev);
 	uint8_t (*exist)(char *filename, struct device *);
 	uint8_t (*findinode)(char *fn, uint32_t *out, struct device *dev);
@@ -73,6 +73,14 @@ typedef struct __mount_info_t {
 	char *loc;
 	struct device *dev;
 } mount_info_t;
+
+extern struct dirent *vfs_readdir(struct file *dirp);
+extern struct file *vfs_open(char *filename);
+extern uint8_t vfs_isdir(struct file *fl);
+extern uint8_t vfs_stat(struct file *fl, struct stat *st);
+extern uint32_t vfs_read(struct file *fl, uint8_t *buf, uint32_t len);
+extern uint32_t vfs_write(struct file *fl, uint8_t *buf, uint32_t nbytes);
+extern uint8_t vfs_read_full(struct file *fl, char *buffer);
 
 extern uint8_t vfs_readfull(struct file *f, char* buf);
 extern uint32_t vfs_ls(char *d, char *buf);

@@ -7,6 +7,8 @@
 
 uint8_t ext2_isdir(struct file *f, struct device *dev)
 {
+	f = f;
+	dev = dev;
 	/* @stub */
 	return 0;
 }
@@ -14,6 +16,10 @@ uint8_t ext2_isdir(struct file *f, struct device *dev)
 uint32_t ext2_writefile(struct file *fl, uint8_t *buf, uint32_t len, struct device *dev)
 {
 	/* @stub */
+	fl = fl;
+	buf = buf;
+	len = len;
+	dev = dev;
 	return 0;
 }
 
