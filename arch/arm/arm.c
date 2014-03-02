@@ -7,12 +7,14 @@
 /* early init for arch-spec tables and such */
 int arch_early_init()
 {
+	phymem_init_level_one(0x400000);
+	uart_init();
 	return 0;
 }
 /* late init. should register a ticker with the scheduler */
 int arch_late_init()
 {
-	tty_write(0, (uint8_t *)"hello arm world!", 17);
+	tty_write(0, (uint8_t *)"hello arm world!\n", 18);
 	tty_flush(0);
 	return 0;
 }
@@ -40,7 +42,7 @@ int interrupt_ctl(int enable)
 /* return a pointer to a new default display for a tty */
 struct display *arch_new_default_display(struct tty *mtty)
 {
-	return pl110_create_new(mtty);
+	return mailbox_display_new(mtty);
 }
 
 /* return a pointer to a new default input for a tty */

@@ -53,7 +53,12 @@ void main(struct multiboot *mb)
 	}
 	DISPLAY_ONLINE = 1;
 	switch_to_tty(0);
+
+#ifdef _ARCH__arm__
+	mailbox_init();
+#endif
 	
+#ifdef CONFIG_ARCH_HAS_MULTIBOOT
 	printk("Parsing multiboot headers...\n");
 	if(mb->flags & 2)
 		printk("Command line: %s\n", (char *)mb->cmdline);
@@ -67,7 +72,11 @@ void main(struct multiboot *mb)
 	printk("addr: 0x%x\n", read_eip());
 	struct multiboot_mod *mod = (struct multiboot_mod *)mb->mods_addr;
 	initrd_create((uint32_t *)mod->mod_start, (uint32_t *)mod->mod_end);
-
+#else
+	printk("Architecture has no multiboot headers. Memory set to 0xF00000.\n");
+	phymem_init_level_two(0xF00000);
+#endif
+	
 	scheduler_init();
 	/*for(int i = 1; i < 11; i ++) 
 		printk("malloc: 0x%x\n", malloc(0x1000));*/
@@ -97,10 +106,10 @@ uint8_t *sh_buf = 0;
 uint32_t __esize = 0;
 void __start_shell()
 {
-	printk("Messing with argc, argv...\n");
 	char *const argv[] = {"hello", "world", 0};
 	printk("Starting shell...\n");
 	elf_start(sh_buf, __esize, argv, 0, 0);
+	sys_exit(1);
 	for(;;);
 }
 
@@ -122,12 +131,13 @@ void start_shell()
 		struct file *f = vfs_open("/proc/devconf");
 		vfs_write(f, "Hello DevConf 2014!\n", 20);
 		if (!p)
-			printk("FATAL: failed to create shell process!\n");
+			panic("Failed to create shell process!\n");
 		int rc = scheduler_add_process(p);
 		if (!rc)
-			printk("FATAL: failed to add process!\n");
+			panic("Failed to add process!\n");
 		//__start_shell();
-		while(1) schedule_noirq();
+		while(is_pid_running(rc)) schedule_noirq();
+		panic("Attempted to kill init!\n");
 	} else {
 err:
 		panic("Unable to start /bin/sh!");

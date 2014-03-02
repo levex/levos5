@@ -157,6 +157,9 @@ int sys_opendir(char *fn)
 {
 	if(!fn)
 		return -1;
+	
+	if (strcmp(".", fn) == 0)
+		return 0xFF;
 
 	if(fn[strlen(fn)] != '/') {
 		char *m = malloc(strlen(fn) + 1);
@@ -177,6 +180,8 @@ int sys_opendir(char *fn)
 /* eax=0xee ebx=dd */
 struct dirent *sys_readdir(int dd)
 {
+	if (dd == 0xFF)
+		return vfs_readdir(get_process()->workdir);
 	struct file *fl = get_process()->filehandles[dd - 3];
 
 	return vfs_readdir(fl);

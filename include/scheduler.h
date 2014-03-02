@@ -33,6 +33,7 @@ struct process {
 	uint32_t exec_len;
 	uint32_t open_handles;
 	uint32_t allocs;
+	struct file *workdir; /* working directory */
 	uint32_t *allocation_table[MAX_ALLOCATIONS_PER_PROCESS];
 	struct file **filehandles;
 	struct thread *threads[MAX_THREADS]; /* array of MAX_THREADS pointers to the threads */

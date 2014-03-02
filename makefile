@@ -18,11 +18,11 @@ include fs/makefile
 
 kernel.img: $(OBJS)
 	@echo "  LD          $@"
-	@$(LD) -T linker.ld -o kernel.img -ffreestanding -O2 -nostdlib $(OBJS)  -lgcc
+	@$(LD) -T linker.ld.$(ARCH) -o kernel.img -ffreestanding -O2 -nostdlib $(OBJS)  -lgcc
 
 start: kernel.img
 	@echo "  DEBUGSYM    $<"
-	@objcopy --only-keep-debug kernel.img kernel.sym
+	@$(OBJCOPY) --only-keep-debug kernel.img kernel.sym
 	@echo "  QEMU        $<"
 	@$(QEMU) -s -initrd fda.img -kernel kernel.img
 

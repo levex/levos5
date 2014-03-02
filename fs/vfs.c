@@ -11,7 +11,7 @@
 
 #define MAX_MOUNTS 16
 
-
+uint8_t VFS_INITIALIZED = 0;
 uint8_t __init_vfs = 0;
 
 mount_info_t **mount_points = 0;
@@ -123,7 +123,16 @@ uint8_t vfs_isdir(struct file *fl)
 }
 
 struct file *vfs_open(char *filename)
-{
+{	
+	if (strcmp("./", filename) == 0) {
+		if (get_process() && get_process()->workdir) {
+			return get_process()->workdir;
+		} else {
+			panic("vfs_open: Unable to handle unknown working directory!\n");
+			return 0;
+		}
+	}
+
 	struct file *fl = malloc(sizeof(struct file));
 	fl->fullpath = filename;
 	int adjust = 0;
@@ -306,6 +315,6 @@ uint8_t vfs_exist_in_dir(char *wd, char *fn)
 int vfs_init()
 {
 	mount_points = (mount_info_t **)malloc(sizeof(uint32_t) * MAX_MOUNTS);
-	__init_vfs = 1;
+	VFS_INITIALIZED = __init_vfs = 1;
 	return 0;
 }

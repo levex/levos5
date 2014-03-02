@@ -57,6 +57,11 @@ struct trapframe {
 #define IRQ_END asm volatile("popa"); \
         asm volatile("iret");
         
+#define ARCH_SAVE_PAGED(x) asm volatile("mov %%cr3, %%eax":"=a"(x));
+        
 #define START_EXECUTION_BY_JUMPING(x, argv, argc) asm volatile("jmp *%%eax"::"a"(x),"b"(argv),"c"(argc));
+
+/* config */
+#define CONFIG_ARCH_HAS_MULTIBOOT 1
 
 #endif

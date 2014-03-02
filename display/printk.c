@@ -58,6 +58,8 @@ void printk(char *fmt, ...)
 void panic(char *buf)
 {
     scheduler_ctl(0);
+    interrupt_ctl(0);
+    unlock_all_mutexes();
     printk("Kernel panic: ");
     printk(buf);
     for(;;);

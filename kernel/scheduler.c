@@ -24,6 +24,7 @@ uint32_t user_stack = 0;
 static struct thread *__t = 0;
 static struct process *__p = 0;
 
+extern uint8_t VFS_INITIALIZED;
 extern void late_init();
 
 void idle_task()
@@ -181,7 +182,9 @@ struct process *create_new_process_nothread(uint8_t *namebuf)
 	p->lastthread = 0;
 	p->threadslen = 0;
 	p->tty_id = 0;
-	asm volatile("mov %%cr3, %%eax":"=a"(p->paged));
+	if (VFS_INITIALIZED)
+		p->workdir = vfs_open("/");
+	ARCH_SAVE_PAGED(p->paged);
 	/* set the pid */
 	p->pid = __lastpid;
 	__lastpid ++;
@@ -235,7 +238,9 @@ struct process *create_new_process(uint8_t *namebuf, uint32_t addr)
 	p->lastthread = 0;
 	p->threadslen = 0;
 	p->tty_id = 0;
-	asm volatile("mov %%cr3, %%eax":"=a"(p->paged));
+	if (VFS_INITIALIZED)
+		p->workdir = vfs_open("/");
+	ARCH_SAVE_PAGED(p->paged);
 	/* set the pid */
 	p->pid = __lastpid;
 	__lastpid ++;

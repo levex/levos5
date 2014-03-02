@@ -82,6 +82,8 @@ r0:
 	free(inode);
 	return 0;
 }
+
+#define EXT2_DIRENTS_PER_BLOCK(dev) (EXT2_PRIV(dev)->blocksize / sizeof(struct ext2_dir))
 /**
  * ext2_list_directory - List a directory
  * 
@@ -89,9 +91,57 @@ r0:
  */
 struct dirent *ext2_list_directory(struct file *f, struct device *dev)
 {
-	f = f;
-	dev = dev;
-	return 0;
+	uint32_t dpos = f->dpos;
+	struct dirent *de = malloc(sizeof(struct dirent));
+	if (!de)
+		return 0;
+
+	struct ext2_inode *inode = malloc(sizeof(struct ext2_inode));
+	if (!inode)
+		return 0;
+	uint32_t inodeid = ext2_find_file_inode(f->respath, inode, dev);
+
+	uint8_t *block_buf = malloc(EXT2_PRIV(dev)->blocksize);
+	if (!block_buf)
+		return 0;
+
+	if (dpos < 12 * EXT2_DIRENTS_PER_BLOCK(dev)) {
+		/* dpos = block * EXT2_DIRENTS_PER_BLOCK + remainder */
+		int j = 0;
+		for(int i = 0; i < 12; i++)
+		{
+			if (inode->dbp[i])
+				ext2_read_block(block_buf, inode->dbp[i], dev);
+			else return 0;
+
+			uint32_t read = 0;
+			while(read < EXT2_PRIV(dev)->blocksize)
+			{
+				struct ext2_dir *dirp = (struct ext2_dir *)block_buf;
+				while(j < dpos && read < EXT2_PRIV(dev)->blocksize)
+				{
+					j ++;
+					read += dirp->size;
+					dirp = (struct ext2_dir *)((uint8_t *)dirp + dirp->size);
+					if (dirp->namelength == 0)
+						return 0;
+				}
+				if (j == dpos) {
+					memcpy(de->d_name, (uint8_t *)&dirp->reserved + 1, dirp->namelength);
+					de->d_ino = inodeid;
+					f->dpos ++;
+					return de;
+				}
+			}
+		}
+		return 0;
+	} else {
+		printk("MAX: %d CURRENT: %d", 12 * EXT2_PRIV(dev)->blocksize / sizeof(struct ext2_dir), dpos);
+		panic("Unsupported directory position in ext2! see backtrace. \n");
+		return 0;
+	}
+
+	return de; 
 	/*char *dir = dd;
 	struct ext2_inode *inode = ext2_find_file_inode(dir, (struct ext2_inode *)buffer, dev);
 	if(!inode) return 0;

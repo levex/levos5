@@ -19,3 +19,17 @@ _start:
 	add	r8, r8, #0x12 << 24
 1: 
     b 1b @ Halt
+
+.globl __arm__put32
+__arm__put32:
+	str r1, [r0]
+	bx lr
+
+.globl __arm__get32
+__arm__get32:
+	ldr r0, [r0]
+	bx lr
+
+.globl dummy
+dummy:
+	bx lr
