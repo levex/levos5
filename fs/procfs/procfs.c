@@ -10,6 +10,14 @@
 
 static int procfs_mounted = 0;
 
+struct procfile {
+	char *name;
+	struct file_operations *fops;
+};
+
+struct procfile *file_list = 0;
+static int files = 0;
+
 uint32_t procfs_writefile(struct file *fl, uint8_t *buf, uint32_t len, struct device *dev);
 uint8_t procfs_findinode(char *fn, uint32_t *out, struct device *dev);
 struct dirent *procfs_readdir(struct file *f, struct device *dev);
@@ -77,17 +85,27 @@ struct dirent *procfs_readdir(struct file *f, struct device *dev)
 					f->dpos ++;
 					return de;
 				}
-				case 2: {
-					struct dirent *de = malloc(sizeof(struct dirent));
-					de->d_ino = 100;
-					memcpy(de->d_name, "devconf", 8);
-					f->dpos ++;
-					return de;
-				}
 				default:
-					return 0;
+					if (f->dpos >= files)
+						return 0;
+					struct procfile *pf = &file_list[f->dpos - 2];
+					struct dirent *de = malloc(sizeof(*de));
+					memcpy(de->d_name, pf->name, strlen(pf->name) + 1);
+					de->d_ino = 101 + f->dpos;
+					return de;
 			}
 	}
+	return 0;
+}
+
+int procfs_create_file(char *path, struct file_operations *fops)
+{
+	struct procfile *file = malloc(sizeof(*file));
+	file->fops = fops;
+	file->name = path;
+	files ++;
+	file_list = realloc(file_list, (files) * sizeof(*file));
+	file_list[files] = *file;
 	return 0;
 }
 
@@ -125,6 +143,11 @@ uint32_t procfs_writefile(struct file *fl, uint8_t *buf, uint32_t len, struct de
 			}
 			memcpy(dummy_buffer, buf, len);
 			return len;
+		default:
+			if(fl->inode < 103)
+				return 0;
+			struct procfile *pf = &file_list[fl->inode - 103];
+			return pf->fops->write(fl, buf, len);
 	}
 	return 0;
 }
@@ -147,6 +170,11 @@ uint32_t procfs_read(struct file *f, uint8_t *buf, uint32_t len, struct device *
 				return dummy_len - f->lpos;
 			}
 			break;
+		default:
+			if(f->inode < 103)
+				return 0;
+			struct procfile *pf = &file_list[f->inode - 103];
+			return pf->fops->read(f, buf, len);
 	}
 	return 0;
 }
@@ -175,6 +203,33 @@ int procfs_probe(struct device *dev)
 	return 0;
 }
 
+uint8_t devconf_write(struct file *f, uint8_t *buf, uint32_t len)
+{
+	if(len > dummy_len) {
+		dummy_buffer = realloc(dummy_buffer, len);
+		dummy_len = len;
+	}
+	memcpy(dummy_buffer, buf, len);
+	return len;
+
+}
+
+uint8_t devconf_read(struct file *f, uint8_t *buf, uint32_t len)
+{
+	if(f->lpos >= dummy_len)
+		return 0;
+	if(dummy_len > f->lpos + len) {
+		memcpy(buf, dummy_buffer + f->lpos, len);
+		f->lpos += dummy_len;
+		return len;
+	} else {
+		memcpy(buf, dummy_buffer + f->lpos, dummy_len - f->lpos);
+		f->lpos = dummy_len;
+		return dummy_len - f->lpos;
+	}
+
+}
+
 int procfs_mount(struct device *dev)
 {
 	if (!dev)
@@ -183,5 +238,10 @@ int procfs_mount(struct device *dev)
 	procfs_mounted = 1;
 	printk("Mount procfs successful!\n");	
 	
+	file_list = malloc(1 * sizeof(struct procfile));
+	struct file_operations *_fops = malloc(sizeof(*_fops));
+	_fops->write = devconf_write;
+	_fops->read = devconf_read;
+	procfs_create_file("/test", _fops);
 	return 0;
 }

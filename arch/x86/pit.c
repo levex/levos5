@@ -36,9 +36,14 @@ extern int task;
 extern uint32_t kernel_stack;
 extern uint32_t user_stack;
 
+uint32_t __pit_ticks = 0;
+
 void pit_irq()
 {
 	asm volatile("add $0x1c, %esp");
+	asm volatile("push %eax");
+	__pit_ticks ++;
+	asm volatile("pop %eax");
 	asm volatile("cmp $1, %0"::"m"(task));
 	asm volatile("je scheduler_switch");
 	asm volatile("pusha");
@@ -86,6 +91,11 @@ static void pit_start_counter (uint32_t freq, uint8_t counter, uint8_t mode) {
         // set frequency rate
         __pit_send_data (divisor & 0xff, 0);
         __pit_send_data ((divisor >> 8) & 0xff, 0);
+}
+
+uint32_t arch_get_ticks()
+{
+	return __pit_ticks;
 }
 
 int pit_init()

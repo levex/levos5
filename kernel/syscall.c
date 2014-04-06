@@ -14,7 +14,6 @@
 void sys_exit(int code)
 {
 	struct process *p = get_process();
-	printk("process %d exiting with errcode: %d\n", p->pid, code);
 	scheduler_kill_self();
 }
 

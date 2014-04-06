@@ -14,6 +14,9 @@ extern uint32_t kernel_stack;
 int arch_early_init()
 {
 	int rc;
+	
+	init_serial();
+	
 	/* init GDT */
 	rc = gdt_init();
 	if (rc)
@@ -165,9 +168,10 @@ void load_stack(uint32_t new, uint32_t *old)
 	asm volatile("mov %%eax, %%esp": :"a"(new));
 }
 
+extern int init_ready;
 void schedule_noirq()
 {
-	if ( task && interrupts_enabled() )
+	if (init_ready && task && interrupts_enabled() )
 		asm volatile("int $0x2f");
 }
 

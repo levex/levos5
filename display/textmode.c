@@ -120,6 +120,12 @@ int textmode_update(struct display *m)
 		}
 		textmode_putchar(m, m->mtty->buffer[i], fgcol, bgcol);
 	}
+	uint16_t pos = AS_TEXTMODE_PRIVATE(m->priv)->y * 80;
+	pos += AS_TEXTMODE_PRIVATE(m->priv)->x;
+	outportb(0x3D4, 0x0F);
+	outportb(0x3D5, (uint8_t)pos & 0xFF);
+	outportb(0x3D4, 0x0E);
+	outportb(0x3D5, (uint8_t)(pos >> 8) & 0xFF);
 	mutex_unlock(&AS_TEXTMODE_PRIVATE(m->priv)->m);
 	return 0;
 }

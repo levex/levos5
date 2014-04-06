@@ -132,8 +132,8 @@ struct file *vfs_open(char *filename)
 			return 0;
 		}
 	}
-
 	struct file *fl = malloc(sizeof(struct file));
+	memset(fl, 0, sizeof(*fl));
 	fl->fullpath = filename;
 	int adjust = 0;
 	int i = __find_mount(filename, &adjust);
@@ -144,7 +144,6 @@ struct file *vfs_open(char *filename)
 			mount_points[i]->dev);
 	if(rc)
 		goto err;
-		
 	if(vfs_isdir(fl)) {
 		fl->isdir = 1;
 		fl->dpos = 0;
@@ -198,6 +197,8 @@ uint8_t vfs_read_full(struct file *fl, char *buffer)
 
 struct dirent *vfs_readdir(struct file *dirp)
 {
+	if (!dirp)
+		return 0;
 	int i = dirp->mountid;
 
 	return mount_points[i]->dev->fs->read_dir(dirp, 

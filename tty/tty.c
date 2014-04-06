@@ -176,6 +176,8 @@ int tty_init(int ttys)
 void tty_write(int id, uint8_t *buf, uint32_t len)
 {
 	tty_s[id].write(&tty_s[id], buf, len);
+	for(int i = 0;i<len;i++)
+		serial_write(buf[i]);
 }
 
 void tty_flush(int id)

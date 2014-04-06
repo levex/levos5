@@ -3,6 +3,7 @@
 #include <mm.h>
 #include <scheduler.h>
 #include <string.h>
+#include <dbus.h>
 
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #pragma GCC diagnostic ignored "-Wsign-compare"
@@ -24,6 +25,8 @@ uint32_t user_stack = 0;
 static struct thread *__t = 0;
 static struct process *__p = 0;
 
+int init_ready = 0;
+
 extern uint8_t VFS_INITIALIZED;
 extern void late_init();
 
@@ -33,6 +36,7 @@ void idle_task()
 	tty_flush(tty_current());
 	scheduler_add_process(create_new_process((uint8_t *)"late_init", (uint32_t)late_init));
 	enable_scheduling();
+	init_ready = 1;
 	while(1) schedule_noirq();
 	for(;;) schedule_noirq();
 }
@@ -183,7 +187,7 @@ struct process *create_new_process_nothread(uint8_t *namebuf)
 	p->threadslen = 0;
 	p->tty_id = 0;
 	if (VFS_INITIALIZED)
-		p->workdir = vfs_open("/");
+		p->workdir = vfs_open("/bin");
 	ARCH_SAVE_PAGED(p->paged);
 	/* set the pid */
 	p->pid = __lastpid;
@@ -275,6 +279,10 @@ int is_pid_running(int pid)
 	return 0;
 }
 
+struct dbus_message init_kill_msg = {
+	.msg = DBUS_EVENT_INIT_KILLED,
+};
+
 /**
  * scheduler_kill_self - Kill currently running process
  * 
@@ -283,6 +291,8 @@ int is_pid_running(int pid)
 int scheduler_kill_self()
 {
 	interrupt_ctl(0);
+	if (__p->pid == 2)
+		dbus_send_message(&init_kill_msg);
 	/* remove old thread from scheduler */
 	__old__thread = 0;
 	/* find current process in hashtable */
@@ -295,15 +305,11 @@ int scheduler_kill_self()
 			break;
 		}
 	}
-	/* free the stuff registered with it */
-	for(int k = 0; k < get_process()->allocs; k++)
-	{
-		free(get_process()->allocation_table[k]);
-	}
-	/* free structure stuff */
 	free(__p->namebuf);
 	phymem_free((void *)__p->palloc, __p->palloc_len);
 	free((void *)__p->threads[0]->stackbot);
+	for(int i = 0; i < __p->allocs; i++)
+		free(__p->allocation_table[i]);
 	free(__p);
 	/* @TODO */
 	interrupt_ctl(1);

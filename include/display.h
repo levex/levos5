@@ -17,6 +17,8 @@ struct display {
 	struct tty *mtty;
 };
 
+extern void stack_trace();
+
 extern void printk(char *fmt, ...);
 extern void panic(char *buf);
 

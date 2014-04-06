@@ -31,6 +31,12 @@ kbd_irq:
 	call __imp_kbd_irq
 	iret
 
+.global ne2k_irq
+.type ne2k_irq, @function
+ne2k_irq:
+	call __imp_ne2k_irq
+	iret
+
 .global read_eip
 .type read_eip, @function
 read_eip:

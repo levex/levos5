@@ -12,6 +12,17 @@ extern int DISPLAY_ONLINE;
 
 static mutex printk_lock = {.locked=0};
 
+void __print_ticks(int tty)
+{
+	tty_write(tty, "[", 1);
+	char _str[32] = {0};
+	itoa(arch_get_ticks(), 10, _str);
+	for(int i = strlen(_str); i < 8; i++)
+		tty_write(tty, "0", 1);
+	tty_write(tty, _str, strlen(_str));
+	tty_write(tty, "] ", 2);
+}
+
 void printk(char *fmt, ...)
 {
 	if(! DISPLAY_ONLINE) return;
@@ -19,6 +30,7 @@ void printk(char *fmt, ...)
 	va_list ap;
 	va_start(ap, fmt);
 	char *s = 0;
+	__print_ticks(0);
 	for(int i = 0; i < strlen(fmt); i++)
 	{
 		if(fmt[i] == '%') {
@@ -59,8 +71,8 @@ void panic(char *buf)
 {
     scheduler_ctl(0);
     interrupt_ctl(0);
-    unlock_all_mutexes();
-    printk("Kernel panic: ");
+    mutex_unlock(&printk_lock);
+	printk("Kernel panic: ");
     printk(buf);
     for(;;);
 }

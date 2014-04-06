@@ -29,7 +29,6 @@ int sys_fork()
 	/* allocate physical space for the child
 	 * we should alloc the same space as the parent */
 	child->palloc = (uint32_t)phymem_alloc(parent->exec_len);
-	
 	/* get length of the palloc */
 	child->palloc_len = parent->exec_len;
 	child->exec_len = parent->exec_len;

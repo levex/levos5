@@ -136,7 +136,7 @@ struct dirent *ext2_list_directory(struct file *f, struct device *dev)
 		}
 		return 0;
 	} else {
-		printk("MAX: %d CURRENT: %d", 12 * EXT2_PRIV(dev)->blocksize / sizeof(struct ext2_dir), dpos);
+		printk("MAX: %d CURRENT: %d\n", 12 * EXT2_PRIV(dev)->blocksize / sizeof(struct ext2_dir), dpos);
 		panic("Unsupported directory position in ext2! see backtrace. \n");
 		return 0;
 	}

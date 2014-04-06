@@ -53,6 +53,11 @@ struct file {
 	uint32_t dpos; /* if directory, the position of readdir */
 };
 
+struct file_operations {
+	uint8_t (*write)(struct file *f, uint8_t *buf, uint32_t len);
+	uint8_t (*read)(struct file *f, uint8_t *buf, uint32_t len);
+};
+
 struct filesystem {
 	char *name;
 	int (*probe)(struct device *);

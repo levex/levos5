@@ -453,6 +453,8 @@ void *PREFIX(malloc)(size_t req_size)
 			printf( "CASE 2: returning %x\n", p); 
 			FLUSH();
 			#endif
+			post_allocation(get_process(), p);
+			memset(p, 0, req_size);
 			liballoc_unlock();		// release the lock
 			return p;
 		}
@@ -489,6 +491,8 @@ void *PREFIX(malloc)(size_t req_size)
 			printf( "CASE 3: returning %x\n", p); 
 			FLUSH();
 			#endif
+			post_allocation(get_process(), p);
+			memset(p, 0, req_size);
 			liballoc_unlock();		// release the lock
 			return p;
 		}
@@ -580,6 +584,8 @@ void *PREFIX(malloc)(size_t req_size)
 						#endif
 						
 						liballoc_unlock();		// release the lock
+						post_allocation(get_process(), p);
+						memset(p, 0, req_size);
 						return p;
 					}
 				}	// min->next != NULL
