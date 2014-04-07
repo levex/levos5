@@ -194,6 +194,7 @@ int ne2k_probe(struct pci_device *pdev)
 
 	struct net_device *ndev = malloc(sizeof(*ndev));
 	ndev->pdev = pdev;
+	ndev->send_packet = ne2k_send_packet;
 	memcpy(ndev->macaddr, mac, 6);
 
 	register_net_device(ndev);

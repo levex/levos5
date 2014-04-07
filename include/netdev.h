@@ -16,6 +16,8 @@ struct net_device {
 	mac_t macaddr;
 	struct pci_device *pdev;
 
+	int (*send_packet)(struct net_device *ndev, struct packet *p);
+
 };
 
 #endif
