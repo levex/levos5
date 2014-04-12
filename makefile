@@ -25,7 +25,7 @@ start: kernel.img
 	@echo "  DEBUGSYM    $<"
 	@$(OBJCOPY) --only-keep-debug kernel.img kernel.sym
 	@echo "  QEMU        $<"
-	@$(QEMU) -s -initrd fda.img -kernel kernel.img -net nic,model=ne2k_pci -net user
+	@$(QEMU) -s -initrd fda.img -kernel kernel.img -net nic,model=ne2k_pci -net user -net dump,file=/dev/stdout -serial stdio
 
 %.o: %.c
 	@echo "  CC          $@"
