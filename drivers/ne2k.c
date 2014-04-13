@@ -32,7 +32,7 @@ int ne2k_setup_2(struct pci_device *pdev, uint8_t mac[6])
 {
 	if(!pdev || !mac)
 		return 1;
-	
+
 	/* p0, abort rDMA, stop */
 	outportb(pdev->iobase + NE_P0_CR, NE_CR_RD2 | NE_CR_STP);
 
@@ -58,7 +58,7 @@ int ne2k_setup_2(struct pci_device *pdev, uint8_t mac[6])
 	/* setup multicast */
 	for(int i = 0; i < 8; i++)
 			outportb(pdev->iobase + NE_P1_MAR0 + i, 0);
-	
+
 	/* p0, rDMA stop, stop */
 	outportb(pdev->iobase + NE_P0_CR, NE_CR_RD2 | NE_CR_STP);
 
@@ -177,7 +177,7 @@ int ne2k_probe(struct pci_device *pdev)
 	uint32_t base = pdev->iobase;
 	printk("NE2000: found PCI device! iobase=0x%x\n", base);
 	ne2k_setup(pdev);
-	
+
 	uint16_t w[16];
 	uint8_t mac[6];
 	ne2k_readmem(pdev, w, 0, 16);
@@ -187,7 +187,7 @@ int ne2k_probe(struct pci_device *pdev)
 			mac[4], mac[5]);
 
 	ne2k_setup_2(pdev, mac);
-	
+
 	struct ne2k_device *ne = malloc(sizeof(*ne));
 	ne->pdev = pdev;
 	pdev->data = ne;
