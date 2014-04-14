@@ -175,7 +175,7 @@ void schedule_noirq()
 		asm volatile("int $0x2f");
 }
 
-/* defined by the scheduler */
+/* set by the scheduler */
 extern struct thread *__old__thread;
 extern struct thread *__new__thread;
 /* Switch context to thread */
