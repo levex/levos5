@@ -20,6 +20,8 @@ void ext2_find_new_inode_id(uint32_t *id, struct device *dev)
 	/* Loop through the block groups */
 	struct ext2_priv_data *priv = EXT2_PRIV(dev);
 	uint8_t *buffer = malloc(priv->blocksize);
+	if (!buffer)
+		return;
 	ext2_read_block(buffer, priv->first_bgd, dev);
 	struct ext2_block_group_desc *bg = (struct ext2_block_group_desc *)buffer;
 	for(int i = 0; i < priv->number_of_bgs; i++)
