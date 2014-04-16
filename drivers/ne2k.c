@@ -10,6 +10,8 @@ struct ne2k_device {
 	struct net_device *ndev;
 };
 
+struct pci_device *__pdev = 0;
+
 int ne2k_setup(struct pci_device *pdev)
 {
 	/* set page 0, abort remote DMA, and STOP */
@@ -21,11 +23,40 @@ int ne2k_setup(struct pci_device *pdev)
 	return 0;
 }
 
+struct pci_device *ne2k_get()
+{
+	return __pdev;
+}
+
+void ne2k_ack_interrupt(struct pci_device *pdev)
+{
+	if (pdev == 0)
+		return;
+	uint16_t base = pdev->iobase;
+	uint8_t isr;
+
+	outportb(base + NE_P0_CR, NE_CR_RD2 | NE_CR_STA);
+
+	isr = inportb(base + NE_P0_ISR);
+	if (isr & NE_ISR_PRX) {
+		printk("packet recv!\n");
+	}
+
+	if (isr & NE_ISR_PTX) {
+		printk("packet transmitted!\n");
+	}
+
+	if (isr & NE_ISR_RDC) {
+	}
+	outportb(base + NE_P0_ISR, 0xff);
+}
+
 extern void ne2k_irq();
 void __imp_ne2k_irq()
 {
-	printk("Ne2k: IRQ!\n");
+	ne2k_ack_interrupt(ne2k_get());
 	send_eoi(11);
+	return;
 }
 
 int ne2k_setup_2(struct pci_device *pdev, uint8_t mac[6])
@@ -42,8 +73,9 @@ int ne2k_setup_2(struct pci_device *pdev, uint8_t mac[6])
 	outportb(pdev->iobase + NE_P0_BNRY, 0xBF);
 
 	/* enable some interrupts */
-	outportb(pdev->iobase + NE_P0_IMR, NE_IMR_PRXE | NE_IMR_PTXE |
-			NE_IMR_RXEE | NE_IMR_TXEE | NE_IMR_OVWE | NE_IMR_RDCE);
+/*	outportb(pdev->iobase + NE_P0_IMR, NE_IMR_PRXE | NE_IMR_PTXE |
+			NE_IMR_RXEE | NE_IMR_TXEE | NE_IMR_OVWE | NE_IMR_RDCE);*/
+	outportb(pdev->iobase + NE_P0_IMR, 0x3F);
 
 	/* p1, stop rDMA, stop */
 	outportb(pdev->iobase + NE_P0_CR, NE_CR_PAGE_1 | NE_CR_RD2 | NE_CR_STP);
@@ -68,11 +100,8 @@ int ne2k_setup_2(struct pci_device *pdev, uint8_t mac[6])
 	/* no loopback */
 	outportb(pdev->iobase + NE_P0_TCR, 0);
 
-	/* no interrupts */
+	/* clear pending interrupts */
 	outportb(pdev->iobase + NE_P0_ISR, 0xFF);
-
-	/* register interrupt handler */
-	register_interrupt(pdev->irq + 32, ne2k_irq);	
 
 	/* start! */
 	outportb(pdev->iobase + NE_P0_CR, NE_CR_RD2 | NE_CR_STA);
@@ -185,6 +214,7 @@ int ne2k_probe(struct pci_device *pdev)
 		mac[i] = w[i];
 	printk("MAC: %x.%x.%x.%x.%x.%x\n", mac[0], mac[1], mac[2], mac[3],
 			mac[4], mac[5]);
+	net_set_mac(mac);
 
 	ne2k_setup_2(pdev, mac);
 
@@ -199,12 +229,13 @@ int ne2k_probe(struct pci_device *pdev)
 
 	register_net_device(ndev);
 
-	struct packet *pk = malloc(sizeof(*pk));
-	void *buf = malloc(14);
-	memcpy(buf, "Hello, world!\n", 14);
-	pk->payload = buf;
-	pk->len = 14;
-	ne2k_send_packet(ndev, pk);
+	__pdev = pdev;
+
+	/* register interrupt handler */
+	printk("ne2k: registering IRQ %d (INT %d)\n", pdev->irq, pdev->irq + 32);
+	register_interrupt(pdev->irq + 32, ne2k_irq);	
+
+	ip_find(ndev);
 
 	return 0;
 }

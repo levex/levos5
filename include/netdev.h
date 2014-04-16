@@ -17,7 +17,7 @@ struct net_device {
 	struct pci_device *pdev;
 
 	int (*send_packet)(struct net_device *ndev, struct packet *p);
-
+	int (*receive_packet)(struct net_device *ndev);
 };
 
 #endif
