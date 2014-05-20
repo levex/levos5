@@ -1,6 +1,7 @@
 language: c
+script: .travis.build.sh
 notifications:
-  email: false
+  email: true
   irc:
     channels:
       - "irc.freenode.net#levex"

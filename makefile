@@ -19,7 +19,7 @@ include net/makefile
 
 kernel.img: $(OBJS)
 	@echo "  LD          $@"
-	@$(LD) -T linker.ld.$(ARCH) -o kernel.img -ffreestanding -O2 -nostdlib $(OBJS)  -lgcc
+	@$(LD) -T linker.ld.$(ARCH) -o kernel.img $(LDFLAGS) $(OBJS)  -lgcc
 
 start: kernel.img
 	@echo "  DEBUGSYM    $<"
