@@ -1,0 +1,8 @@
+language: c
+notifications:
+  email: false
+  irc:
+    channels:
+      - "irc.freenode.net#levex"
+    use_notice: true
+    skip_join: false
