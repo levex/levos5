@@ -122,7 +122,7 @@ int create_new_thread(struct process *p, uint32_t s, int a)
 err_s:
 	free(t);
 err:
-	rc = 1;
+	rc = -EIO;
 	if(a)
 		interrupt_ctl(1);
 	return rc;
@@ -140,10 +140,10 @@ err:
 int post_allocation(struct process *p, uint32_t *base)
 {
 	if(!p || !base)
-		return 1;
+		return -EINVAL;
 
 	if(p->allocs > MAX_ALLOCATIONS_PER_PROCESS)
-		return 1;
+		return -ENOSPC;
 		
 	p->allocation_table[p->allocs] = base;
 	p->allocs ++;

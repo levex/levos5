@@ -85,15 +85,15 @@ void sys_write(int fd, uint8_t *buf, int len)
 int sys_open(char *fn, uint32_t flags)
 {
 	if(flags != O_RDONLY)
-		return -1;
+		return -ENOSYS;
 	
 	struct process *p = get_process();
 	if(p->open_handles >= MAX_FILEHANDLES)
-		return -1;
+		return -EMFILE;
 	
 	struct file *fl = vfs_open(fn);
 	if(!fl)
-		return -1;
+		return -ENOENT;
 	
 	p->filehandles[p->open_handles] = fl;
 	p->open_handles ++;
@@ -108,11 +108,13 @@ int sys_execve(char *path, char *const argv[], char *envp[])
 {
 	struct stat st;
 	struct file *fl = vfs_open(path);
-	if(!fl) return 0;
+	if(!fl)
+		return -ENOENT;
 	/* get size of exec */
 	sys_stat(fl->fullpath, &st);
 	uint32_t size = st.st_size;
-	if(!size) return 0;
+	if(!size)
+		return -ENOENT;
 	//printk("creating a buffer of %d bytes\n", size);
 	uint8_t *buf = malloc(size);
 	ptr = buf;
@@ -155,7 +157,7 @@ int sys_getpid()
 int sys_opendir(char *fn)
 {
 	if(!fn)
-		return -1;
+		return -EINVAL;
 	
 	if (strcmp(".", fn) == 0)
 		return 0xFF;
@@ -172,7 +174,7 @@ int sys_opendir(char *fn)
 	if(! vfs_isdir(fl)) {
 		free(fn);
 		free(fl);
-		return -1;
+		return -ENOTDIR;
 	}
 	return sys_open(fn, O_RDONLY);
 }

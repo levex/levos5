@@ -2,6 +2,7 @@
 #define __DISPLAY_H_
 
 #include <tty.h>
+#include <errno.h>
 #include <stdarg.h>
 #include <stdint.h>
 

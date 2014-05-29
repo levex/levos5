@@ -62,7 +62,7 @@ void __imp_ne2k_irq()
 int ne2k_setup_2(struct pci_device *pdev, uint8_t mac[6])
 {
 	if(!pdev || !mac)
-		return 1;
+		return -EINVAL;
 
 	/* p0, abort rDMA, stop */
 	outportb(pdev->iobase + NE_P0_CR, NE_CR_RD2 | NE_CR_STP);
@@ -201,7 +201,7 @@ int ne2k_send_packet(struct net_device *ndev, struct packet *p)
 int ne2k_probe(struct pci_device *pdev)
 {
 	if (pdev->vendor != 0x10EC || pdev->device != 0x8029)
-		return 1;
+		return -ENODEV;
 
 	uint32_t base = pdev->iobase;
 	printk("NE2000: found PCI device! iobase=0x%x\n", base);

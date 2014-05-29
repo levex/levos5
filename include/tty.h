@@ -4,6 +4,7 @@
 #include <display.h>
 #include <stdint.h>
 #include <mutex.h>
+#include <errno.h>
 
 #define TTY_FLAG_ACTIVE 1 /* tty is the current output stream */
 #define TTY_FLAG_ONLINE 2 /* tty is online and processes input */

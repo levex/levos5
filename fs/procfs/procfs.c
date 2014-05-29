@@ -44,7 +44,7 @@ uint8_t procfs_stat(char *file, struct stat *st, struct device *dev)
 		st->st_size = dummy_len;
 		return 0;
 	}
-	return 1;
+	return -ENOENT;
 }
 
 struct filesystem procfs_default = {
@@ -64,7 +64,8 @@ struct filesystem procfs_default = {
 
 struct dirent *procfs_readdir(struct file *f, struct device *dev)
 {
-	if(!f || !f->isdir) return 0;
+	if(!f || !f->isdir)
+		return 0;
 	dev = dev;
 	//printk("procfs_readdir! inode: %d dpos:%d\n", f->inode, f->dpos);
 	switch(f->inode)
@@ -128,7 +129,7 @@ uint8_t procfs_findinode(char *fn, uint32_t *out, struct device *dev)
 		return 0;
 	}
 	*out = 0;
-	return 1;
+	return ENOENT;
 }
 
 uint32_t procfs_writefile(struct file *fl, uint8_t *buf, uint32_t len, struct device *dev)
@@ -182,10 +183,10 @@ uint32_t procfs_read(struct file *f, uint8_t *buf, uint32_t len, struct device *
 int procfs_probe(struct device *dev)
 {
 	if (!dev || !dev->valid || dev->id != 0x1337)
-		return 1;
+		return -EINVAL;
 
 	if (procfs_mounted)
-		return 1;
+		return -EBUSY;
 		
 	/* allocate space for a new filesystem */
 	struct filesystem *fs = malloc(sizeof(struct filesystem));
@@ -233,7 +234,7 @@ uint8_t devconf_read(struct file *f, uint8_t *buf, uint32_t len)
 int procfs_mount(struct device *dev)
 {
 	if (!dev)
-		return 1;
+		return -EINVAL;
 		
 	procfs_mounted = 1;
 	printk("Mount procfs successful!\n");	

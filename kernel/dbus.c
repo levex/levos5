@@ -23,7 +23,7 @@ int dbus_init()
 int dbus_register_listener(struct dbus_listener *lst)
 {
 	if (!lst)
-		return 1;
+		return -EINVAL;
 
 	for (int i = 0; i < DBUS_MAX_LSTS; i++)
 	{

@@ -12,6 +12,7 @@
 #include <syscall.h>
 #include <elf.h>
 #include <dbus.h>
+#include <errno.h>
 
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #pragma GCC diagnostic ignored "-Wpointer-sign"
@@ -98,7 +99,7 @@ void __start_shell()
 int init_killed_event(struct dbus_message *msg)
 {
 	if (msg->msg != DBUS_EVENT_INIT_KILLED)
-		return 1;
+		return -EINVAL;
 
 	panic("Attempted to kill init!\n");
 	return 0;

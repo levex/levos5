@@ -37,13 +37,15 @@ int list_mount()
 		printk("%s on %s type: %s\n", mount_points[i]->dev->name,
 		 mount_points[i]->loc, mount_points[i]->dev->fs->name);
 	}
-	return 1;
+	return 0;
 }
 
 int device_try_to_mount(struct device *dev, char *loc)
 {
-	if(!dev) return 1;
-	if(check_mount(loc)) return 1;
+	if(!dev)
+		return -EINVAL;
+	if(check_mount(loc))
+		return -ENODEV;
 	if(procfs_probe(dev) == 0)
 	{
 		if(procfs_mount(dev) == 0)
@@ -55,7 +57,7 @@ int device_try_to_mount(struct device *dev, char *loc)
 			mount_points[last_mount_id - 1] = m;
 			return 0;
 		}
-		return 1;
+		return -ENODEV;
 	}
 	if(ext2_probe(dev) == 0)
 	{
@@ -68,7 +70,7 @@ int device_try_to_mount(struct device *dev, char *loc)
 			mount_points[last_mount_id - 1] = m;
 			return 0;
 		}
-		return 1;
+		return -ENODEV;
 	}
 	if(dummyfs_probe(dev) == 0)
 	{
@@ -81,9 +83,9 @@ int device_try_to_mount(struct device *dev, char *loc)
 			mount_points[last_mount_id - 1] = m;
 			return 0;
 		}
-		return 1;
+		return -ENODEV;
 	}
-	return 1;
+	return -ENOSYS;
 }
 
 inline uint8_t __find_mount(char *filename, int *adjust)
@@ -163,7 +165,8 @@ uint32_t vfs_write(struct file *fl, uint8_t *buf, uint32_t nbytes)
 
 uint8_t vfs_stat(struct file *fl, struct stat *st)
 {
-	if(!fl) return 0;
+	if(!fl)
+		return -EINVAL;
 	/*int adjust = 0;*/
 	int i = /*__find_mount(filename, &adjust);*/ fl->mountid;
 	/*filename += adjust;*/
@@ -175,7 +178,8 @@ uint8_t vfs_stat(struct file *fl, struct stat *st)
 
 uint32_t vfs_read(struct file *fl, uint8_t *buf, uint32_t len)
 {
-	if(!fl) return 0;
+	if(!fl)
+		return -EINVAL;
 	
 	return mount_points[fl->mountid]->dev->fs->read(fl, buf, len,
 			mount_points[fl->mountid]->dev);
@@ -188,7 +192,8 @@ uint8_t vfs_read_full(struct file *fl, char *buffer)
 	 * if no match, continue until last '/' and then we know
 	 * it is on the root_device
 	 */
-	 if(!fl) return 0;
+	 if(!fl)
+	 	return -EINVAL;
 	 int i = fl->mountid;
 	 int rc = mount_points[i]->dev->fs->readfull(fl->respath, buffer,
 				mount_points[i]->dev);
@@ -198,7 +203,7 @@ uint8_t vfs_read_full(struct file *fl, char *buffer)
 struct dirent *vfs_readdir(struct file *dirp)
 {
 	if (!dirp)
-		return 0;
+		return -EINVAL;
 	int i = dirp->mountid;
 
 	return mount_points[i]->dev->fs->read_dir(dirp, 

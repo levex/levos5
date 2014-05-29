@@ -7,6 +7,7 @@
 #include <mutex.h>
 #include <misc.h>
 #include <device.h>
+#include <errno.h>
 
 #pragma GCC diagnostic ignored "-Wsign-compare"
 
@@ -17,7 +18,8 @@ int ctty = 0;
 
 int tty_generic_write(struct tty *m, uint8_t *buf, uint32_t len)
 {
-	if(m->bufpos + len > m->buflen) return 1;
+	if(m->bufpos + len > m->buflen)
+		return -ENOSPC;
 	mutex_lock(&m->m_lock);
 	memcpy(m->buffer + m->bufpos, buf, len);
 	m->bufpos += len;
@@ -27,10 +29,11 @@ int tty_generic_write(struct tty *m, uint8_t *buf, uint32_t len)
 
 int tty_generic_flush(struct tty *m)
 {
-	if(! (m->flags & TTY_FLAG_ACTIVE)) return 1;
+	if(! (m->flags & TTY_FLAG_ACTIVE))
+		return -ENOTTY;
 	if(m->disp->update)
 		return m->disp->update(m->disp);
-	return 1;
+	return -ENOSYS;
 }
 
 int tty_generic_setactive(struct tty *m)
@@ -132,7 +135,7 @@ int tty_init(int ttys)
 {
 	tty_s = malloc(sizeof(struct tty) * ttys);
 	if (!tty_s)
-		return 1;
+		return -ENOMEM;
 	memset(tty_s, 0, sizeof( struct tty ));
 	for(int i = 0; i < ttys; i++)
 	{
@@ -144,24 +147,24 @@ int tty_init(int ttys)
 		tty_s[i].flush = tty_generic_flush;
 		tty_s[i].buffer = malloc(TTY_BUFFER_SIZE);
 		if(!tty_s[i].buffer)
-			return 1;
+			return -ENOMEM;
 		tty_s[i].buflen = TTY_BUFFER_SIZE;
 		tty_s[i].bufpos = 0;
 		tty_s[i].inbuf = malloc(TTY_BUFFER_SIZE);
 		
 		if(!tty_s[i].inbuf)
-			return 1;
+			return -ENOMEM;
 		tty_s[i].inbuflen = 0;
 		tty_s[i].disp = arch_new_default_display(&tty_s[i]);
 		tty_s[i].inp = arch_new_default_input(&tty_s[i]);
 		
 		struct device *tdev = malloc(sizeof(struct device));
 		if (!tdev)
-			return 1;
+			return -ENOMEM;
 		tdev->id = tty_s[i].id;
 		uint8_t *namebuf = malloc(32);
 		if (!namebuf)
-			return 1;
+			return -ENOMEM;
 		memcpy(namebuf, (uint8_t*)"tty", 3);
 		itoa(tty_s[i].id, 10, (char *) (namebuf + 3));
 		tdev->valid = 1;
