@@ -16,7 +16,7 @@ int arch_early_init()
 	int rc;
 	
 	init_serial();
-	
+
 	/* init GDT */
 	rc = gdt_init();
 	if (rc)
@@ -44,11 +44,18 @@ int arch_early_init()
 	return rc;
 }
 
+
+extern int x86_console_init();
 int arch_late_init()
 {
+
 	tty_write(0, (uint8_t *)"x86 architecture init succeeded\n", 32);
 	tty_flush(0);
-	
+
+	int rc = x86_console_init();
+	if (rc)
+		return rc;
+
 	/* init tasking */
 	return 0;
 }

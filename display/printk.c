@@ -4,6 +4,7 @@
 #include <tty.h>
 #include <misc.h>
 #include <scheduler.h>
+#include <console.h>
 
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #pragma GCC diagnostic ignored "-Wpointer-sign"
@@ -12,15 +13,15 @@ extern int DISPLAY_ONLINE;
 
 static mutex printk_lock = {.locked=0};
 
-void __print_ticks(int tty)
+void __print_ticks()
 {
-	tty_write(tty, "[", 1);
+	console_append('[');
 	char _str[32] = {0};
 	itoa(arch_get_ticks(), 10, _str);
 	for(int i = strlen(_str); i < 8; i++)
-		tty_write(tty, "0", 1);
-	tty_write(tty, _str, strlen(_str));
-	tty_write(tty, "] ", 2);
+		console_append('0');
+	console_write(_str, strlen(_str));
+	console_write("] ", 2);
 }
 
 void printk(char *fmt, ...)
@@ -30,21 +31,21 @@ void printk(char *fmt, ...)
 	va_list ap;
 	va_start(ap, fmt);
 	char *s = 0;
-	__print_ticks(0);
+	__print_ticks();
 	for(int i = 0; i < strlen(fmt); i++)
 	{
 		if(fmt[i] == '%') {
 			switch(fmt[i + 1]) {
 				case 's':
 					s = va_arg(ap, char *);
-					tty_write(0, s, strlen(s));
+					console_write(s, strlen(s));
 					i++;
 					break;
 				case 'd': {
 					int c = va_arg(ap, int);
 					char str[32] = {0};
 					itoa(c, 10, str);
-					tty_write(0, str, strlen(str));
+					console_write(str, strlen(str));
 					i++;
 					break;
 				}
@@ -52,13 +53,13 @@ void printk(char *fmt, ...)
 					int c = va_arg(ap, int);
 					char str[32] = {0};
 					itoa(c, 16, str);
-					tty_write(0, str, strlen(str));
+					console_write(str, strlen(str));
 					i++;
 					break;
 				}
 			}
 		} else {
-			tty_write(0, &fmt[i], 1);
+			console_write(&fmt[i], 1);
 		}
 	}
 	tty_flush(0);

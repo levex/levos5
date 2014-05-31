@@ -16,6 +16,7 @@ OBJS += arch/x86/paging.o
 OBJS += arch/x86/start.o
 OBJS += arch/x86/exceptions.o
 OBJS += arch/x86/fork.o
+OBJS += arch/x86/console.o
 
 
 STARTFILE := arch/x86/start.o
